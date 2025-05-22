@@ -128,4 +128,34 @@
   p a:hover {
     text-decoration: underline;
   }
+  .error {
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+  }
+  .requirements-list {
+    list-style: none;
+    padding-left: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .requirements-list li {
+    margin-bottom: 4px;
+    color: red;
+  }
+  
+  .success-message {
+    margin-top: 0.5rem;
+    color: green;
+    font-weight: bold;
+  }
+  
+  
+  .requirements-list li.valid {
+    color: green;
+  }
+  
+  .requirements-list li.invalid {
+    color: red;
+  }
   
