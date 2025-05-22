@@ -14,14 +14,12 @@
   
   
   /* Container setup */
-  header, main, footer {
+   main, footer {
     max-width: 960px;
     margin: auto;
     padding: 1rem;
   }
-  
-  /* Header styles */
-/* Make the header fixed at the top */
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f9f9f9;
@@ -32,12 +30,16 @@ body {
 /* Header style */
 header {
   position: fixed;
-  background-color: #fff;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid #ddd;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 
 .logo {
@@ -77,7 +79,7 @@ nav a:hover {
     margin-bottom: 1.5rem;
   }
   
-  .cta-button {
+  .btn {
     display: inline-block;
     padding: 0.75rem 1.5rem;
     background-color: #007acc;
@@ -87,7 +89,7 @@ nav a:hover {
     transition: background 0.3s;
   }
   
-  .cta-button:hover {
+  .btn:hover {
     background-color: #005f99;
   }
   
