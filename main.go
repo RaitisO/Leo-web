@@ -1,12 +1,33 @@
 package main
 
 import (
+	"database/sql"
+	"io/ioutil"
 	"log"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
 	// Serve static files like CSS and JS
+	db, err := sql.Open("sqlite3", "database/Data.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	sqlBytes, err := ioutil.ReadFile("database/db.sql")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	sqlStmt := string(sqlBytes)
+	_, err = db.Exec(sqlStmt)
+	if err != nil {
+		log.Fatalf("SQL execution failed: %v\nStatement: %s", err, sqlStmt)
+	}
+
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
@@ -19,7 +40,7 @@ func main() {
 
 	// Start the server
 	log.Println("Server started at http://localhost:8080")
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
