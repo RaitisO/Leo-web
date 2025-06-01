@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Leo-web/routes"
 	"database/sql"
 	"io/ioutil"
 	"log"
@@ -37,6 +38,8 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "views/index.html")
 	})
+
+	routes.UserRoutes(db)
 
 	// Start the server
 	log.Println("Server started at http://localhost:8080")

@@ -3,6 +3,7 @@ package controllers
 import (
 	"Leo-web/models"
 	"database/sql"
+	"fmt"
 	"net/http"
 )
 
@@ -15,7 +16,7 @@ func RegisterUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	role := r.FormValue("role")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-
+	fmt.Println("Role:", role)
 	// Create User struct
 	user := models.User{
 		FirstName:   firstName,
