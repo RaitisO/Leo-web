@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"Leo-web/controllers"
 	"database/sql"
-	"leo-web/controllers"
 	"net/http"
 )
 

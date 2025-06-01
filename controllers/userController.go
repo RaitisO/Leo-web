@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"Leo-web/models"
 	"database/sql"
-	"leo-web/models"
 	"net/http"
 )
 
@@ -13,7 +13,6 @@ func RegisterUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	lastName := r.FormValue("last_name")
 	dateOfBirth := r.FormValue("DoB")
 	role := r.FormValue("role")
-	username := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
@@ -28,7 +27,7 @@ func RegisterUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if user exists
-	exists, err := models.UserExists(db, username, email)
+	exists, err := models.UserExists(db, email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
