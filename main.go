@@ -1,7 +1,6 @@
 package main
 
 import (
-	"Leo-web/handlers"
 	"database/sql"
 	"io/ioutil"
 	"log"
@@ -28,9 +27,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("SQL execution failed: %v\nStatement: %s", err, sqlStmt)
 	}
-
-	http.HandleFunc("/api/register", handlers.RegisterHandler(db))
-	http.HandleFunc("/api/login", handlers.LoginHandler(db))
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
