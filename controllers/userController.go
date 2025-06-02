@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"Leo-web/handlers"
 	"Leo-web/models"
 	"Leo-web/sessions"
 	"database/sql"
@@ -54,27 +55,18 @@ func RegisterUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	// Redirect with success message
 	http.Redirect(w, r, "/views/success.html", http.StatusSeeOther)
 }
-func LoginUser(db *sql.DB, w http.ResponseWriter, r *http.Request, ID int, role string) {
-	existingSession, exists := sessions.GetSessionByUserID(ID)
+func LoginUser(db *sql.DB, w http.ResponseWriter, r *http.Request, user models.User) {
+	existingSession, exists := sessions.GetSessionByUserID(user.ID)
 	if exists {
 		sessions.DeleteSession(existingSession.Token)
 	}
 
-	sessionID := sessions.CreateSession(ID)
+	sessionID := sessions.CreateSession(user.ID)
 	http.SetCookie(w, &http.Cookie{
 		Name:  "session_token",
 		Value: sessionID,
 	})
 
-	// Redirect based on role
-	switch role {
-	case "student":
-		http.Redirect(w, r, "/student", http.StatusSeeOther)
-	case "parent":
-		http.Redirect(w, r, "/parent", http.StatusSeeOther)
-	case "teacher":
-		http.Redirect(w, r, "/teacher", http.StatusSeeOther)
-	default:
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-	}
+	// Delegate redirect to role handler
+	handlers.RoleHandler(w, r, user)
 }

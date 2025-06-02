@@ -31,24 +31,24 @@ func CreateUser(db *sql.DB, user User) error {
 	_, err = db.Exec(statement, user.Email, user.FirstName, user.LastName, user.DateOfBirth, user.Role, user.Password)
 	return err
 }
-func GetUserByEmailAndPassword(db *sql.DB, email, password string) (int, string, bool) {
+func GetUserByEmailAndPassword(db *sql.DB, identifier string, password string) (User, bool) {
 	var user User
 	err := db.QueryRow(
-		"SELECT id, password_hash, role FROM users WHERE email = ?",
-		email,
-	).Scan(&user.ID, &user.Password, &user.Role)
+		"SELECT id, email, password_hash, first_name, last_name, role FROM users WHERE email = ?",
+		identifier,
+	).Scan(&user.ID, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Role)
 
 	if err != nil {
 		fmt.Println("Error fetching user:", err)
-		return 0, "", false
+		return user, false
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return 0, "", false
+		return user, false
 	}
 
-	return user.ID, user.Role, true
+	return user, true
 }
 
 func GetUserByID(db *sql.DB, userID string) (string, string, error) {
