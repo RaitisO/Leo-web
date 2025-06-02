@@ -5,7 +5,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const requirementsDiv = document.getElementById("password-requirements");
     const repeatErrorDiv = document.getElementById("repeat-password-error");
     const form = document.querySelector("form");
-  
+    const params = new URLSearchParams(window.location.search);
+  if (params.get("error") === "email") {
+    document.getElementById("email-error").textContent = "This email is already in use.";
+  }
     function validatePassword(pwd) {
       const lengthOK = pwd.length >= 8;
       const upperOK = /[A-Z]/.test(pwd);
@@ -87,4 +90,3 @@ if (allMet) {
       }
     });
   });
-  
