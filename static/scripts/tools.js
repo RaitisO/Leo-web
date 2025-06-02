@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
   if (params.get("error") === "email") {
     document.getElementById("email-error").textContent = "This email is already in use.";
+  }else if(params.get("error") === "Invalid email or password"){
+    document.getElementById("login-error").textContent = "Wrong email or password"
   }
     function validatePassword(pwd) {
       const lengthOK = pwd.length >= 8;

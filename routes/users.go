@@ -21,12 +21,12 @@ func UserRoutes(db *sql.DB) {
 			password := r.PostFormValue("password")
 
 			// Check if the user exists
-			user, exists := models.GetUserByEmailOrUsernameAndPassword(db, identifier, password)
+			id, role, exists := models.GetUserByEmailAndPassword(db, identifier, password)
 			if exists {
-				controllers.LoginUser(db, w, r, user)
+				controllers.LoginUser(db, w, r, id, role)
 			} else {
 				// Redirect back to the login page with an error message
-				http.Redirect(w, r, "/?error=Invalid email or password", http.StatusSeeOther)
+				http.Redirect(w, r, "/views/signup.html?error=Invalid email or password", http.StatusSeeOther)
 			}
 		}
 	})

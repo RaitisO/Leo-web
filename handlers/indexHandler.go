@@ -12,7 +12,7 @@ import (
 
 func IndexHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	w.Header().Add("Cache-Control", "no-store")
-	tmpl := template.Must(template.ParseFiles("../frontend/index.html"))
+	tmpl := template.Must(template.ParseFiles("views/index.html"))
 	firstName, lastName := getUsername(db, r)
 
 	data := models.PageData{

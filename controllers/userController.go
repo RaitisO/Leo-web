@@ -54,21 +54,27 @@ func RegisterUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	// Redirect with success message
 	http.Redirect(w, r, "/views/success.html", http.StatusSeeOther)
 }
-func LoginUser(db *sql.DB, w http.ResponseWriter, r *http.Request, ID int) {
-	// Generate a new session ID
+func LoginUser(db *sql.DB, w http.ResponseWriter, r *http.Request, ID int, role string) {
 	existingSession, exists := sessions.GetSessionByUserID(ID)
 	if exists {
-		// If a session exists, delete it to invalidate the previous session
 		sessions.DeleteSession(existingSession.Token)
 	}
 
-	// Generate a new session token
 	sessionID := sessions.CreateSession(ID)
-	// Set a cookie with the session ID
 	http.SetCookie(w, &http.Cookie{
 		Name:  "session_token",
 		Value: sessionID,
 	})
 
-	http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
+	// Redirect based on role
+	switch role {
+	case "student":
+		http.Redirect(w, r, "/student", http.StatusSeeOther)
+	case "parent":
+		http.Redirect(w, r, "/parent", http.StatusSeeOther)
+	case "teacher":
+		http.Redirect(w, r, "/teacher", http.StatusSeeOther)
+	default:
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
 }

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome, {{.FirstName}} {{.LastName}}!</h1>
+    <p>This is your student dashboard.</p>
+
+    <ul>
+      <li>📅 View and book lessons</li>
+      <li>📚 Access study materials</li>
+      <li>📹 Join Zoom sessions</li>
+    </ul>
+
+    <a class="button" href="/logout">Logout</a>
+  </div>
+</body>
+</html>
