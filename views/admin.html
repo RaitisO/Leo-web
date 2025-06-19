@@ -16,7 +16,7 @@
       
     </div>
     <nav>
-  <span>{{.FirstName}} {{.LastName}}</span>
+  <span>{{.FirstName}}</span>
   <a  onclick="showSection('home-section')" data-i18n="nav.home">Home</a>
   <a onclick="showSection('profile-section')" data-i18n="nav.profile">Profile</a>
   <a href="/logout" data-i18n="nav.sign_out" class="btn">Sign out</a>
@@ -25,9 +25,9 @@
   </header>
   <div class="container">
 <section id="home-section" class="section">
-  <h1 data-i18n="student.headline">This is your student dashboard.</h1>
+  <h1 data-i18n="student.headline">Dashboard</h1>
   <ul>
-    <li>📅 View and book lessons</li>
+    <li  onclick="showSection('users')">Manage users</li>
     <li>📚 Access study materials</li>
     <li>📹 Join Zoom sessions</li>
   </ul>
@@ -42,7 +42,15 @@
 
   <!-- Add more profile details if needed -->
 </section>
+<section id="profile-section" class="section" style="display: none;">
+  <h1 data-i18n="profile.headline">Your Profile</h1>
+  <p><strong>First Name:</strong> {{.FirstName}}</p>
+  <p><strong>Last Name:</strong> {{.LastName}}</p>
+  <p><strong>Email: </strong>{{.Email}}</p>
+  <p><strong>Date of Birth:</strong>{{.DateOfBirth}}</p>
 
+  <!-- Add more profile details if needed -->
+</section>
   </div>
 </body>
 <script>

@@ -30,4 +30,15 @@ func UserRoutes(db *sql.DB) {
 			}
 		}
 	})
+	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		// Delete the session cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:   "session_token",
+			Value:  "",
+			MaxAge: -1, // MaxAge<0 means delete cookie now
+		})
+
+		// Redirect the user to the index page
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	})
 }

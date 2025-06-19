@@ -10,8 +10,11 @@ type User struct {
 	Password    string `json:"password"`
 }
 type PageData struct {
-	LoggedIn  bool
-	LogUserID int
-	FirstName string
-	LastName  string
+	LoggedIn    bool
+	LogUserID   int
+	FirstName   string
+	LastName    string
+	Email       string
+	Role        string
+	DateOfBirth string
 }

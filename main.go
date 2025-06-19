@@ -1,7 +1,6 @@
 package main
 
 import (
-	"Leo-web/handlers"
 	"Leo-web/routes"
 	"Leo-web/sessions"
 	"database/sql"
@@ -12,13 +11,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func indexHandlerWithDB(db *sql.DB) http.HandlerFunc {
-	// Return a closure that has access to the db parameter
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Call the original IndexHandler function with the db parameter
-		handlers.IndexHandler(w, r, db)
-	}
-}
 func main() {
 	// Serve static files like CSS and JS
 	db, err := sql.Open("sqlite3", "database/Data.db")
@@ -46,8 +38,9 @@ func main() {
 	http.Handle("/views/", http.StripPrefix("/views/", http.FileServer(http.Dir("views"))))
 
 	// Serve HTML files from /views
-	handleIndex := indexHandlerWithDB(db)
-	http.HandleFunc("/", handleIndex)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "views/index.html")
+	})
 
 	routes.UserRoutes(db)
 

@@ -10,15 +10,19 @@ import (
 
 func RoleHandler(w http.ResponseWriter, r *http.Request, user models.User) {
 	w.Header().Add("Cache-Control", "no-store")
-	tmpl := template.Must(template.ParseFiles("views/index.html"))
+	tmpl := template.Must(template.ParseFiles("views/" + user.Role + ".html"))
 
 	data := models.PageData{
-		LoggedIn:  checkIfUserIsLoggedIn(r), // Implement this function
-		FirstName: user.FirstName,
-		LastName:  user.LastName, // Implement this function
+		LoggedIn:    checkIfUserIsLoggedIn(r),
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Role:        user.Role,
+		Email:       user.Email,
+		DateOfBirth: user.DateOfBirth,
+	}
+	if data.Role == "admin" {
 
 	}
-
 	err := tmpl.ExecuteTemplate(w, user.Role+".html", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
