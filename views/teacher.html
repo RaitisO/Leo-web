@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Student Dashboard</title>
+  <title>Teacher Dashboard</title>
   <link rel="stylesheet" href="/static/styles/index.css">
 </head>
 <body>
@@ -25,28 +25,32 @@
   </header>
   <div class="container">
 <section id="home-section" class="section">
-  <h1 data-i18n="student.headline">This is your student dashboard.</h1>
+  <h1 data-i18n="student.headline">This is your teacher dashboard.</h1>
   <ul>
-    <li class="link" onclick="showSection('book-section')">📅 View and book lessons</li>
-    <li class="link" onclick="showSection('studymaterial-section')">📚 Access study materials</li>
-    <li class="link" onclick="showSection('zoom-section')">📹 Join Zoom sessions</li>
+    <li class="link" onclick="showSection('calendar-section')">📅 Calendar</li>
+    <li class="link" onclick="showSection('student-section')">Your students</li>
+    <li class="link" onclick="showSection('studymaterial-section')">📚 Publish study materials</li>
+    <li class="link" onclick="showSection('request-section')">Student requests</li>
   </ul>
 </section>
 
-<section id="book-section" class="section" style="display: none;">
+<section id="calendar-section" class="section" style="display: none;">
   <h1 data-i18n="book.headline">Book a section!</h1>
-  <p><strong>Later will show all teachers with a book button like this example</strong></p>
-  <a>(of course it will look nicer that that this is just a simple example)</a>
-  <div>Teacher Name<button class="btn">Book</button></div>
+  <p><strong>Will have access to the calendar scedule</strong></p>
+</section>
+<section id="studymaterial-section" class="section" style="display: none;">
+    <h1 data-i18n="student.headline">Your Students</h1>
+      <p><strong>List of your(teachers) students</strong></p>
+
 </section>
 <section id="studymaterial-section" class="section" style="display: none;">
     <h1 data-i18n="study.headline">Study materials</h1>
-      <p><strong>will have links to study materials</strong></p>
+      <p><strong>will have links to study materials and option to submit new materials</strong></p>
 
 </section>
-<section id="zoom-section" class="section" style="display: none;">
-    <h1 data-i18n="zoom.headline">Join a zoom meeting</h1>
-      <p><strong>Could have relevant zoom links</strong></p>
+<section id="request-section" class="section" style="display: none;">
+    <h1 data-i18n="request.headline">Will see student requests</h1>
+      <p><strong>Like request for a lesson or a request for a student to view your study materials and </strong></p>
 
 </section>
 <section id="profile-section" class="section" style="display: none;">

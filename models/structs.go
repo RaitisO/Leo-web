@@ -17,4 +17,5 @@ type PageData struct {
 	Email       string
 	Role        string
 	DateOfBirth string
+	Users       []User
 }

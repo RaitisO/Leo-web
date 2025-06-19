@@ -20,8 +20,8 @@ func RoleHandler(w http.ResponseWriter, r *http.Request, user models.User) {
 		Email:       user.Email,
 		DateOfBirth: user.DateOfBirth,
 	}
-	if data.Role == "admin" {
-
+	if user.Role == "admin" {
+		//models.GetAllUsers()
 	}
 	err := tmpl.ExecuteTemplate(w, user.Role+".html", data)
 	if err != nil {

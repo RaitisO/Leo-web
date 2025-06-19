@@ -59,3 +59,29 @@ func GetUserByID(db *sql.DB, userID string) (string, string, error) {
 	}
 	return firstname, lastname, nil
 }
+func GetAllUsers(db *sql.DB) ([]User, error) {
+	rows, err := db.Query(`
+		SELECT id, first_name, last_name, email, role 
+		FROM users
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var u User
+		err := rows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Role)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
