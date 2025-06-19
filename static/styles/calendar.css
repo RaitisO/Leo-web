@@ -1,0 +1,192 @@
+.calendar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calendar-row {
+  display: flex;
+}
+
+.calendar-times {
+  display: flex;
+  flex-direction: column;
+  width: 60px;
+}
+.calendar-times div{
+  display: flex;
+  flex-direction: column;
+  width: 60px;
+  height: 40px;
+}
+
+.calendar-day-labels {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: 100%;
+  border: 1px solid #ccc;
+}
+
+.calendar-slot {
+  height: 40px;
+  border: 1px solid #eee;
+}
+
+.calendar-day-label {
+  padding: 4px 0;
+  background: #f0f0f0;
+  border-bottom: 1px solid #ccc;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.calendar-header button {
+  background-color: #4a90e2;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.calendar-header button:hover {
+  background-color: #357ab8;
+}
+
+.calendar-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-box {
+  background: white;
+  position: fixed;
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 300px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.close-popup {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  font-size: 24px;
+  cursor: pointer;
+}
+/* Style for the popup itself */
+.popup-box {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  font-family: sans-serif;
+}
+
+/* Header and date */
+.popup-box h3 {
+  margin-top: 0;
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+#popup-date {
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+/* Input fields */
+.popup-box label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+.popup-box input[type="text"],
+.popup-box input[type="time"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* Time field container */
+.time-fields {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.time-fields label {
+  flex: 1;
+}
+
+/* Create button */
+#create-lesson {
+  width: 100%;
+  padding: 10px;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+#create-lesson:hover {
+  background-color: #45a049;
+}
+
+/* Close button (X) */
+.close-popup {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-popup:hover {
+  color: #000;
+}

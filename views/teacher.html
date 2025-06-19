@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Teacher Dashboard</title>
   <link rel="stylesheet" href="/static/styles/index.css">
+    <link rel="stylesheet" href="/static/styles/calendar.css">
+
 </head>
 <body>
     <header>
@@ -27,17 +29,37 @@
 <section id="home-section" class="section">
   <h1 data-i18n="student.headline">This is your teacher dashboard.</h1>
   <ul>
-    <li class="link" onclick="showSection('calendar-section')">📅 Calendar</li>
     <li class="link" onclick="showSection('student-section')">Your students</li>
     <li class="link" onclick="showSection('studymaterial-section')">📚 Publish study materials</li>
     <li class="link" onclick="showSection('request-section')">Student requests</li>
   </ul>
 </section>
 
-<section id="calendar-section" class="section" style="display: none;">
-  <h1 data-i18n="book.headline">Book a section!</h1>
-  <p><strong>Will have access to the calendar scedule</strong></p>
+<section id="calendar-section">
+ <div id="calendar-wrapper">
+    <div class="calendar-header">
+    <button id="prev-week">←</button>
+    <h2 id="month-year-label"></h2>
+    <button id="next-week">→</button>
+    </div>
+
+  <div class="calendar-row">
+    <!-- Day labels (Mon 17, Tue 18...) -->
+    <div id="calendar-times" class="calendar-times"></div>
+    <div id="calendar-day-labels" class="calendar-day-labels"></div>
+  </div>
+
+  <div class="calendar-row">
+    <!-- Time + grid -->
+    <div id="calendar-times" class="calendar-times"></div>
+    <div id="calendar-grid" class="calendar-grid"></div>
+  </div>
+</div>
+
+
 </section>
+<script src="/static/scripts/calendar.js"></script>
+
 <section id="studymaterial-section" class="section" style="display: none;">
     <h1 data-i18n="student.headline">Your Students</h1>
       <p><strong>List of your(teachers) students</strong></p>
@@ -63,6 +85,37 @@
   <!-- Add more profile details if needed -->
 </section>
   </div>
+  <div id="slot-popup" class="popup-overlay">
+  <div class="popup-box">
+    <div class="popup-content">
+  <span id="close-popup" class="close-popup">&times;</span>
+  <h3>Create a Lesson Time</h3>
+  <p id="popup-date"></p>
+
+  <div class="time-fields">
+    <label>Start Time:
+      <input type="time" id="start-time">
+    </label>
+    <label>End Time:
+      <input type="time" id="end-time">
+    </label>
+  </div>
+
+  <label>
+    Student Name:
+    <input type="text" id="student-name" placeholder="Enter student name">
+  </label>
+
+  <label>
+    Lesson Topic:
+    <input type="text" id="lesson-topic" placeholder="Enter topic">
+  </label>
+
+  <button id="create-lesson">Create</button>
+</div>
+  </div>
+</div>
+
 </body>
 <script>
   function showSection(sectionId) {
