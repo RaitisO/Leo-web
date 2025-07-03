@@ -28,11 +28,10 @@
   <div class="container">
 <section id="home-section" class="section">
   <h1 data-i18n="student.headline">This is your teacher dashboard.</h1>
-  <ul>
-    <li class="link" onclick="showSection('student-section')">Your students</li>
-    <li class="link" onclick="showSection('studymaterial-section')">📚 Publish study materials</li>
-    <li class="link" onclick="showSection('request-section')">Student requests</li>
-  </ul>
+  <a href="https://www.zoom.com" target="_blank" class="join-zoom-button">Join Zoom</a>
+  <a href="https://www.miro.com" target="_blank" class="join-miro-button">Black Board</a>
+
+
 </section>
 
 <section id="calendar-section">
@@ -90,14 +89,15 @@
     <div class="popup-content">
   <span id="close-popup" class="close-popup">&times;</span>
   <h3>Create a Lesson Time</h3>
+  <form action="/add_lesson" type="submit">
   <p id="popup-date"></p>
 
   <div class="time-fields">
-    <label>Start Time:
-      <input type="time" id="start-time">
+    <label for="start-time">Start Time:
+      <input type="time" id="start-time" name="start-time">
     </label>
-    <label>End Time:
-      <input type="time" id="end-time">
+    <label for="end-time">End Time:
+      <input type="time" id="end-time" name="end-time">
     </label>
   </div>
 
@@ -111,7 +111,8 @@
     <input type="text" id="lesson-topic" placeholder="Enter topic">
   </label>
 
-  <button id="create-lesson">Create</button>
+  <button type="submit"id="create-lesson">Create</button>
+</form>
 </div>
   </div>
 </div>

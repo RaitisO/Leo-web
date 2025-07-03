@@ -60,8 +60,8 @@ nav a:hover {
 }
 
   
-  /* Hero section */
-  .hero {
+  /* Home section */
+  #home {
     text-align: center;
     padding: 4rem 1rem;
     background-color: #e8f0fe;
@@ -69,12 +69,12 @@ nav a:hover {
     margin: 2rem 0;
   }
   
-  .hero h1 {
+  #home h1 {
     font-size: 2rem;
     margin-bottom: 1rem;
   }
   
-  .hero p {
+  #home p {
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
   }
@@ -138,23 +138,23 @@ nav a:hover {
     scroll-behavior: smooth;
   }
   
-  .hero {
+  #home {
     padding: 4rem 2rem;
     text-align: center;
     background-color: #eef6fa;
   }
   
-  .hero h1 {
+  #home h1 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
   }
   
-  .hero p {
+  #home p {
     font-size: 1.2rem;
     margin-bottom: 2rem;
   }
   
-  .hero .btn {
+  #home .btn {
     margin: 0.5rem;
   }
   
@@ -233,3 +233,26 @@ nav a:hover {
     color: blueviolet;
     cursor:pointer;
   }
+  .join-zoom-button, .join-miro-button {
+  display: inline-block;
+  color: white;
+  padding: 10px 16px;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+.join-zoom-button{
+    background-color: #38AAd9;
+
+}
+.join-miro-button{
+    background-color: #F2D422;
+
+}
+.join-zoom-button:hover {
+  background-color: #1b6ed1;
+}
+.join-miro-button:hover {
+  background-color: #bca41b;
+}

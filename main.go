@@ -43,6 +43,7 @@ func main() {
 	})
 
 	routes.UserRoutes(db)
+	routes.LessonRoutes(db)
 
 	// Start the server
 	log.Println("Server started at http://localhost:8080")

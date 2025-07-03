@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"Leo-web/handlers"
 	"Leo-web/models"
 	"Leo-web/sessions"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -65,8 +65,10 @@ func LoginUser(db *sql.DB, w http.ResponseWriter, r *http.Request, user models.U
 	http.SetCookie(w, &http.Cookie{
 		Name:  "session_token",
 		Value: sessionID,
+		Path:  "/",
 	})
 
-	// Delegate redirect to role handler
-	handlers.RoleHandler(w, r, user)
+	// Construct the URL
+	redirectURL := fmt.Sprintf("/%s/%s/dashboard", user.Role, user.FirstName)
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
