@@ -55,13 +55,13 @@ func RegisterUser(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	// Redirect with success message
 	http.Redirect(w, r, "/views/success.html", http.StatusSeeOther)
 }
-func LoginUser(db *sql.DB, w http.ResponseWriter, r *http.Request, user models.User) {
-	existingSession, exists := sessions.GetSessionByUserID(user.ID)
+func LoginUser(db *sql.DB, w http.ResponseWriter, r *http.Request, userID int, firstName string, role string) {
+	existingSession, exists := sessions.GetSessionByUserID(userID)
 	if exists {
 		sessions.DeleteSession(existingSession.Token)
 	}
 
-	sessionID := sessions.CreateSession(user.ID)
+	sessionID := sessions.CreateSession(userID)
 	http.SetCookie(w, &http.Cookie{
 		Name:  "session_token",
 		Value: sessionID,
@@ -69,6 +69,6 @@ func LoginUser(db *sql.DB, w http.ResponseWriter, r *http.Request, user models.U
 	})
 
 	// Construct the URL
-	redirectURL := fmt.Sprintf("/%s/%s/dashboard", user.Role, user.FirstName)
+	redirectURL := fmt.Sprintf("/dashboard/%s/%s", role, firstName)
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }

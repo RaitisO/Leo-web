@@ -31,34 +31,52 @@ func CreateUser(db *sql.DB, user User) error {
 	_, err = db.Exec(statement, user.Email, user.FirstName, user.LastName, user.DateOfBirth, user.Role, user.Password)
 	return err
 }
-func GetUserByEmailAndPassword(db *sql.DB, identifier string, password string) (User, bool) {
-	var user User
+func GetUserLoginInfo(db *sql.DB, email string, password string) (int, string, string, bool) {
+	var id int
+	var hashedPassword string
+	var firstName string
+	var role string
+
 	err := db.QueryRow(
-		"SELECT id, email, password_hash, first_name, last_name, role FROM users WHERE email = ?",
-		identifier,
-	).Scan(&user.ID, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Role)
+		"SELECT id, password_hash, first_name, role FROM users WHERE email = ?",
+		email,
+	).Scan(&id, &hashedPassword, &firstName, &role)
 
 	if err != nil {
 		fmt.Println("Error fetching user:", err)
-		return user, false
+		return 0, "", "", false
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
-		return user, false
+		return 0, "", "", false
 	}
 
-	return user, true
+	return id, firstName, role, true
 }
 
-func GetUserByID(db *sql.DB, userID string) (string, string, error) {
-	var firstname, lastname string
-	err := db.QueryRow("SELECT first_name, last_name FROM users WHERE id = ?", userID).Scan(&firstname, &lastname)
+func GetUserByID(db *sql.DB, userID int) (User, error) {
+	var user User
+	err := db.QueryRow(`
+		SELECT id, email, password_hash, first_name, last_name, role, date_of_birth
+		FROM users WHERE id = ?
+	`, userID).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.Role,
+		&user.DateOfBirth,
+	)
+
 	if err != nil {
-		return "", "", err
+		return User{}, err
 	}
-	return firstname, lastname, nil
+
+	return user, nil
 }
+
 func GetAllUsers(db *sql.DB) ([]User, error) {
 	rows, err := db.Query(`
 		SELECT id, first_name, last_name, email, role 

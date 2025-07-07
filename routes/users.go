@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Leo-web/controllers"
+	"Leo-web/handlers"
 	"Leo-web/models"
 	"database/sql"
 	"net/http"
@@ -21,12 +22,12 @@ func UserRoutes(db *sql.DB) {
 			password := r.PostFormValue("password")
 
 			// Check if the user exists
-			user, exists := models.GetUserByEmailAndPassword(db, identifier, password)
-			if exists {
-				controllers.LoginUser(db, w, r, user)
-			} else {
-				// Redirect back to the login page with an error message
+			userID, firstName, role, ok := models.GetUserLoginInfo(db, identifier, password)
+			if !ok {
 				http.Redirect(w, r, "/views/signin.html?error=signinerror", http.StatusSeeOther)
+				return
+			} else {
+				controllers.LoginUser(db, w, r, userID, firstName, role)
 			}
 		}
 	})
@@ -40,5 +41,8 @@ func UserRoutes(db *sql.DB) {
 
 		// Redirect the user to the index page
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+	})
+	http.HandleFunc("/dashboard", func(w http.ResponseWriter, r *http.Request) {
+		handlers.DashboardHandler(w, r, db)
 	})
 }
