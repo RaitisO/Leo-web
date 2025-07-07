@@ -58,7 +58,7 @@ func GetUserLoginInfo(db *sql.DB, email string, password string) (int, string, s
 func GetUserByID(db *sql.DB, userID int) (User, error) {
 	var user User
 	err := db.QueryRow(`
-		SELECT id, email, password_hash, first_name, last_name, role, date_of_birth
+		SELECT id, email, password_hash, first_name, last_name, role, COALESCE(date_of_birth, '')
 		FROM users WHERE id = ?
 	`, userID).Scan(
 		&user.ID,

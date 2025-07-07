@@ -23,6 +23,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	// Get session token
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		http.Error(w, "Unauthorized - no session", http.StatusUnauthorized)
 		return
 	}

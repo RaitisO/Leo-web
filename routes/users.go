@@ -42,7 +42,10 @@ func UserRoutes(db *sql.DB) {
 		// Redirect the user to the index page
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
-	http.HandleFunc("/dashboard", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/dashboard/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.DashboardHandler(w, r, db)
+	})
+	http.HandleFunc("/blog/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.BlogHandler(w, r, db)
 	})
 }
