@@ -1,0 +1,29 @@
+{{define "blog.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="/static/css/index.css">
+<head>
+  <meta charset="UTF-8">
+  <title>Blog</title>
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a>
+    {{if .LoggedIn}}
+      <a href="/dashboard">Dashboard</a>
+      <a href="/logout">Logout</a>
+    {{else}}
+      <a href="/signin">Sign In</a>
+    {{end}}
+  </nav>
+
+  <h1>Welcome to the Blog</h1>
+  <p>Here you'll find updates, stories, and event recaps.</p>
+
+  <!-- Placeholder for blog posts -->
+  <div id="posts">
+    <p>No posts yet. Stay tuned!</p>
+  </div>
+</body>
+</html>
+{{end}}
