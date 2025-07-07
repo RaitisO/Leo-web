@@ -41,7 +41,6 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "views/index.html")
 	})
-	http.HandleFunc("/", handlers.DashboardRouter)
 
 	routes.UserRoutes(db)
 	routes.LessonRoutes(db)
