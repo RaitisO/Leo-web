@@ -48,6 +48,7 @@ CREATE TABLE if NOT EXISTS lessons (
     end_time DATETIME NOT NULL,
     zoom_link TEXT,
     notes TEXT,
+    lesson_topic TEXT,
     FOREIGN KEY (teacher_id) REFERENCES users(id),
     FOREIGN KEY (student_id) REFERENCES users(id),
     FOREIGN KEY (subject_id) REFERENCES subjects(id)

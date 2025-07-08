@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Leo-web/controllers"
+	"Leo-web/handlers"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -18,5 +19,6 @@ func LessonRoutes(db *sql.DB) {
 			fmt.Println("Not a POST request")
 		}
 	})
+	http.HandleFunc("/api/users", handlers.GetUsersHandler(db))
 
 }

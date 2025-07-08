@@ -72,6 +72,27 @@ if (role === 'admin') {
   });
 }
 
+window.addEventListener('DOMContentLoaded', async () => {
+  const res = await fetch('/api/users');
+  const data = await res.json();
+
+  const teacherSelect = document.getElementById('teacher-select');
+  const studentSelect = document.getElementById('student-select');
+
+  data.teachers.forEach(t => {
+    const option = document.createElement('option');
+    option.value = t.id;
+    option.textContent = t.full_name;
+    teacherSelect.appendChild(option);
+  });
+
+  data.students.forEach(s => {
+    const option = document.createElement('option');
+    option.value = s.id;
+    option.textContent = s.full_name;
+    studentSelect.appendChild(option);
+  });
+});
 
 
   return week[0]; // return Monday of the week
