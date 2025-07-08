@@ -108,22 +108,23 @@
 
   <div class="time-fields">
     <label for="start-time">Start Time:
-      <input type="time" name="start-time" id="start-time" name="start-time">
+      <input type="time"  id="start-time" name="start-time">
     </label>
     <label for="end-time">End Time:
-      <input type="time" name="end-time" id="end-time" name="end-time">
+      <input type="time"  id="end-time" name="end-time">
     </label>
   </div>
   
-  <label>
-    Teacher Name:
-    <input type="text" name="teacher-name" id="teacher-name" placeholder="Enter teacher name">
-  </label>
+  <label for="teacher-select">Teacher Name:</label>
+<select id="teacher-select" name="teacher-id">
+  <option disabled selected>Select a teacher</option>
+</select>
 
-  <label>
-    Student Name:
-    <input type="text" name="student-name" id="student-name" placeholder="Enter student name">
-  </label>
+<label for="student-select">Student Name:</label>
+<select id="student-select" name="student-id">
+  <option disabled selected>Select a student</option>
+</select>
+
 
   <label>
     Lesson Topic:
@@ -146,8 +147,13 @@
     document.getElementById(sectionId).style.display = 'block';
   }
 </script>
-<script>
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
-</script>
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+
+
 
 </html>

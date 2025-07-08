@@ -7,20 +7,22 @@ import (
 )
 
 func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	err := r.ParseMultipartForm(10 << 20) // 10 MB
 	if err != nil {
-		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		http.Error(w, "Failed to parse multipart form", http.StatusBadRequest)
 		return
 	}
 
 	start := r.FormValue("start-time")
 	end := r.FormValue("end-time")
-	student := r.FormValue("student-name")
+	studentID := r.FormValue("student-id")
+	teacherID := r.FormValue("teacher-id")
 	topic := r.FormValue("lesson-topic")
 
 	fmt.Println("Received lesson data:")
 	fmt.Println("Start Time:", start)
 	fmt.Println("End Time:", end)
-	fmt.Println("Student Name:", student)
+	fmt.Println("Student ID:", studentID)
+	fmt.Println("Teacher ID:", teacherID)
 	fmt.Println("Topic:", topic)
 }

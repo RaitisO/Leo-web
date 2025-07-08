@@ -72,28 +72,6 @@ if (role === 'admin') {
   });
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
-  const res = await fetch('/api/users');
-  const data = await res.json();
-
-  const teacherSelect = document.getElementById('teacher-select');
-  const studentSelect = document.getElementById('student-select');
-
-  data.teachers.forEach(t => {
-    const option = document.createElement('option');
-    option.value = t.id;
-    option.textContent = t.full_name;
-    teacherSelect.appendChild(option);
-  });
-
-  data.students.forEach(s => {
-    const option = document.createElement('option');
-    option.value = s.id;
-    option.textContent = s.full_name;
-    studentSelect.appendChild(option);
-  });
-});
-
 
   return week[0]; // return Monday of the week
 }
@@ -122,8 +100,7 @@ function openSlotPopup(day, hour) {
   document.getElementById("end-time").value = endTimeStr;
 
   // Optional: clear old inputs
-  document.getElementById("student-name").value = "";
-  document.getElementById("lesson-topic").value = "";
+ 
 
   popup.style.display = "flex";
 }
@@ -173,6 +150,32 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   });
 });
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const res = await fetch('/api/users');
+  const data = await res.json();
+
+  const teacherSelect = document.getElementById('teacher-select');
+  const studentSelect = document.getElementById('student-select');
+
+  data.teachers.forEach(t => {
+    const option = document.createElement('option');
+    option.value = t.id;
+    option.textContent = `${t.first_name} ${t.last_name}`;
+    teacherSelect.appendChild(option);
+  });
+
+  data.students.forEach(s => {
+    const option = document.createElement('option');
+    option.value = s.id;
+    option.textContent = `${s.first_name} ${s.last_name}`;
+    studentSelect.appendChild(option);
+  });
+
+  new TomSelect('#teacher-select', { create: false, sortField: 'text' });
+  new TomSelect('#student-select', { create: false, sortField: 'text' });
+});
+
 
 const startHour = 8;
 const endHour = 20;
