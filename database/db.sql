@@ -74,3 +74,9 @@ CREATE TABLE if NOT EXISTS parent_student (
     FOREIGN KEY (student_id) REFERENCES users(id),
     PRIMARY KEY (parent_id, student_id)
 );
+CREATE TABLE IF NOT EXISTS posts (
+    id INTEGER PRIMARY KEY,
+    title TEXT,
+    content TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );

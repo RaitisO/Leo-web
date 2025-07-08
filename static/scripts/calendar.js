@@ -59,15 +59,18 @@ function renderWeek(baseDate = new Date()) {
       grid.appendChild(slot);
     }
   }
-document.querySelectorAll('.calendar-slot').forEach(slot => {
-  slot.addEventListener('click', () => {
-  const day = parseInt(slot.dataset.day);
-  const hour = parseInt(slot.dataset.hour);
-  openSlotPopup(day, hour);
-});
+const pathParts = window.location.pathname.split('/');
+const role = pathParts[2]; // /dashboard/role/name → role is at index 2
 
-});
-
+if (role === 'admin') {
+  document.querySelectorAll('.calendar-slot').forEach(slot => {
+    slot.addEventListener('click', () => {
+      const day = parseInt(slot.dataset.day);
+      const hour = parseInt(slot.dataset.hour);
+      openSlotPopup(day, hour);
+    });
+  });
+}
 
 
 
@@ -123,7 +126,32 @@ document.getElementById("close-popup").addEventListener("click", () => {
   document.getElementById("slot-popup").style.display = "none";
 });
 });
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("lesson-form");
 
+  form.addEventListener("submit", function (e) {
+    e.preventDefault(); // Stop normal form submission
+
+    const formData = new FormData(form);
+
+    fetch("/add_lesson", {
+      method: "POST",
+      body: formData,
+    })
+      .then(response => {
+        if (response.ok) {
+          console.log("Lesson added successfully!");
+          // Optionally, close popup or show success message
+          document.getElementById("slot-popup").style.display = "none";
+        } else {
+          console.error("Error submitting form");
+        }
+      })
+      .catch(error => {
+        console.error("Fetch error:", error);
+      });
+  });
+});
 
 const startHour = 8;
 const endHour = 20;

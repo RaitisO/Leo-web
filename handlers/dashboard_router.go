@@ -31,6 +31,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	// Step 2: Get session from session token
 	session, exists := sessions.Sessions[cookie.Value]
 	if !exists {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		http.Error(w, "Unauthorized - invalid session", http.StatusUnauthorized)
 		return
 	}

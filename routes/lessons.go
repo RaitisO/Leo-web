@@ -14,7 +14,9 @@ func LessonRoutes(db *sql.DB) {
 			end := r.FormValue("end-time")
 			fmt.Println("start: ", start, "end: ", end)
 			controllers.AddLesson(db, w, r)
-
+		} else {
+			fmt.Println("Not a POST request")
 		}
 	})
+
 }

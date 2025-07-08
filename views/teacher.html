@@ -89,26 +89,31 @@
     <div class="popup-content">
   <span id="close-popup" class="close-popup">&times;</span>
   <h3>Create a Lesson Time</h3>
-  <form action="/add_lesson" type="submit">
+<form id="lesson-form">
   <p id="popup-date"></p>
 
   <div class="time-fields">
     <label for="start-time">Start Time:
-      <input type="time" id="start-time" name="start-time">
+      <input type="time" name="start-time" id="start-time" name="start-time">
     </label>
     <label for="end-time">End Time:
-      <input type="time" id="end-time" name="end-time">
+      <input type="time" name="end-time" id="end-time" name="end-time">
     </label>
   </div>
+  
+  <label>
+    Teacher Name:
+    <input type="text" name="teacher-name" id="teacher-name" placeholder="Enter teacher name">
+  </label>
 
   <label>
     Student Name:
-    <input type="text" id="student-name" placeholder="Enter student name">
+    <input type="text" name="student-name" id="student-name" placeholder="Enter student name">
   </label>
 
   <label>
     Lesson Topic:
-    <input type="text" id="lesson-topic" placeholder="Enter topic">
+    <input type="text" name="lesson-topic" id="lesson-topic" placeholder="Enter topic">
   </label>
 
   <button type="submit"id="create-lesson">Create</button>
@@ -125,5 +130,6 @@
     document.getElementById(sectionId).style.display = 'block';
   }
 </script>
+
 
 </html>

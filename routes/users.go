@@ -29,7 +29,10 @@ func UserRoutes(db *sql.DB) {
 			} else {
 				controllers.LoginUser(db, w, r, userID, firstName, role)
 			}
+		} else {
+			http.ServeFile(w, r, "/views/signin.html")
 		}
+
 	})
 	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
 		// Delete the session cookie

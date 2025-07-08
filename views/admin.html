@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <title>Student Dashboard</title>
   <link rel="stylesheet" href="/static/styles/index.css">
+      <link rel="stylesheet" href="/static/styles/calendar.css">
+
+  <script src="/static/scripts/calendar.js"></script>
+
 </head>
 <body>
     <header>
@@ -45,6 +49,94 @@
 
 
 </section>
+<section id="calendar-section">
+ <div id="calendar-wrapper">
+    <div class="calendar-header">
+    <button id="prev-week">←</button>
+    <h2 id="month-year-label"></h2>
+    <button id="next-week">→</button>
+    </div>
+
+  <div class="calendar-row">
+    <!-- Day labels (Mon 17, Tue 18...) -->
+    <div id="calendar-times" class="calendar-times"></div>
+    <div id="calendar-day-labels" class="calendar-day-labels"></div>
+  </div>
+
+  <div class="calendar-row">
+    <!-- Time + grid -->
+    <div id="calendar-times" class="calendar-times"></div>
+    <div id="calendar-grid" class="calendar-grid"></div>
+  </div>
+</div>
+
+
+</section>
+
+<section id="studymaterial-section" class="section" style="display: none;">
+    <h1 data-i18n="student.headline">Your Students</h1>
+      <p><strong>List of your(teachers) students</strong></p>
+
+</section>
+<section id="studymaterial-section" class="section" style="display: none;">
+    <h1 data-i18n="study.headline">Study materials</h1>
+      <p><strong>will have links to study materials and option to submit new materials</strong></p>
+
+</section>
+<section id="request-section" class="section" style="display: none;">
+    <h1 data-i18n="request.headline">Will see student requests</h1>
+      <p><strong>Like request for a lesson or a request for a student to view your study materials and </strong></p>
+
+</section>
+<section id="profile-section" class="section" style="display: none;">
+  <h1 data-i18n="profile.headline">Your Profile</h1>
+  <p><strong>First Name:</strong> {{.FirstName}}</p>
+  <p><strong>Last Name:</strong> {{.LastName}}</p>
+  <p><strong>Email: </strong>{{.Email}}</p>
+  <p><strong>Date of Birth:</strong>{{.DateOfBirth}}</p>
+
+  <!-- Add more profile details if needed -->
+</section>
+  </div>
+  <div id="slot-popup" class="popup-overlay">
+  <div class="popup-box">
+    <div class="popup-content">
+  <span id="close-popup" class="close-popup">&times;</span>
+  <h3>Create a Lesson Time</h3>
+<form id="lesson-form">
+  <p id="popup-date"></p>
+
+  <div class="time-fields">
+    <label for="start-time">Start Time:
+      <input type="time" name="start-time" id="start-time" name="start-time">
+    </label>
+    <label for="end-time">End Time:
+      <input type="time" name="end-time" id="end-time" name="end-time">
+    </label>
+  </div>
+  
+  <label>
+    Teacher Name:
+    <input type="text" name="teacher-name" id="teacher-name" placeholder="Enter teacher name">
+  </label>
+
+  <label>
+    Student Name:
+    <input type="text" name="student-name" id="student-name" placeholder="Enter student name">
+  </label>
+
+  <label>
+    Lesson Topic:
+    <input type="text" name="lesson-topic" id="lesson-topic" placeholder="Enter topic">
+  </label>
+
+  <button type="submit"id="create-lesson">Create</button>
+</form>
+</div>
+  </div>
+</div>
+
+</body>
   </div>
 </body>
 <script>
@@ -53,6 +145,9 @@
     sections.forEach(section => section.style.display = 'none');
     document.getElementById(sectionId).style.display = 'block';
   }
+</script>
+<script>
+
 </script>
 
 </html>
