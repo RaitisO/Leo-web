@@ -190,3 +190,12 @@
 .close-popup:hover {
   color: #000;
 }
+.calendar-slot {
+    position: absolute;
+    background-color: #38AAD9;
+    color: white;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 0.8em;
+    z-index: 10;
+}

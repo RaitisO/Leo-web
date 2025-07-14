@@ -10,9 +10,9 @@ import (
 )
 
 func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	err := r.ParseMultipartForm(10 << 20) // 10 MB
 	if err != nil {
-		http.Error(w, "Invalid form", http.StatusBadRequest)
+		http.Error(w, "Failed to parse multipart form", http.StatusBadRequest)
 		return
 	}
 
@@ -51,7 +51,7 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		StudentID: studentID,
 		TeacherID: teacherID,
 	}
-
+	fmt.Println("Lesson: ", lesson)
 	if err := models.AddLesson(db, lesson); err != nil {
 		fmt.Println("DB error:", err)
 		http.Error(w, "Failed to save lesson", http.StatusInternalServerError)
