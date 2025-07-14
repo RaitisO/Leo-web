@@ -75,70 +75,26 @@ if (role === 'admin') {
 
   return week[0]; // return Monday of the week
 }
-function addTimeSlotToCalendar(lesson) {
-    const { start_time, end_time, student_name, lesson_topic } = lesson;
 
-    // Parse datetime strings into JS Date objects
-    const start = new Date(start_time);
-    const end = new Date(end_time);
-
-    // Format: e.g., "2025-07-15" (for column lookup)
-    const dateStr = start.toISOString().split('T')[0];
-
-    // Time in HH:MM format (for row lookup)
-    const startHour = start.getHours();
-    const startMinutes = start.getMinutes();
-    const endHour = end.getHours();
-    const endMinutes = end.getMinutes();
-
-    const startTimeStr = `${String(startHour).padStart(2, '0')}:${String(startMinutes).padStart(2, '0')}`;
-    const endTimeStr = `${String(endHour).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
-
-    // Find the column (day)
-    const column = document.querySelector(`[data-date="${dateStr}"]`);
-    if (!column) {
-        console.warn("Date column not found:", dateStr);
-        return;
-    }
-
-    // Calculate the time range (e.g., 12:00 to 14:00)
-    const startIndex = timeToRowIndex(startTimeStr);
-    const endIndex = timeToRowIndex(endTimeStr);
-
-    if (startIndex === null || endIndex === null) {
-        console.warn("Invalid time range:", startTimeStr, endTimeStr);
-        return;
-    }
-
-    // Create a new slot div
-    const slot = document.createElement("div");
-    slot.className = "calendar-slot";
-    slot.style.gridRow = `${startIndex + 1} / ${endIndex + 1}`;
-    slot.style.gridColumn = column.dataset.columnIndex; // assume this is set
-    slot.innerHTML = `
-        <strong>${student_name}</strong><br>
-        <small>${lesson_topic}</small>
-    `;
-
-    // Append to calendar grid
-    const calendarGrid = document.getElementById("calendar-grid");
-    calendarGrid.appendChild(slot);
+function makeLessonSlot(start,end){
+  startdate = new Date(start);
+  enddate= new Date(end);
+  day = startdate.getDay();
+  day = day-(day===0?-6:1);
+  starthour = startdate.getHours();
+  endhour = enddate.getHours();
+  while(starthour<endhour){
+      slot=document.querySelector(`[data-day="${day}"][data-hour="${starthour}"]`);
+      if (slot) {
+         slot.classList.remove("calendar-slot");
+         slot.classList.add("lesson-slot"); // or add a class instead
+} else {
+  console.warn("Slot not found for", day, hour);
 }
-function timeToRowIndex(timeStr) {
-    // e.g., "12:00" → 12
-    const [hour, minutes] = timeStr.split(":").map(Number);
+starthour++;
+  }
 
-    // If your calendar starts at 08:00 and each row is 30 minutes:
-    const baseHour = 8;
-    const intervalMinutes = 30;
-
-    const totalMinutes = (hour - baseHour) * 60 + minutes;
-
-    if (totalMinutes < 0) return null;
-
-    return Math.floor(totalMinutes / intervalMinutes);
 }
-
 function openSlotPopup(day, hour) {
   const popup = document.getElementById("slot-popup");
 
@@ -222,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (response.ok) {
           console.log("Lesson added successfully!");
           document.getElementById("slot-popup").style.display = "none";
-          addTimeSlotToCalendar(data.lesson);
+          makeLessonSlot(fullStart,fullEnd);
         } else {
           console.error("Error submitting form");
         }
