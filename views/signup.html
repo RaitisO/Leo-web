@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>ACSYC - Sign Up</title>
+        <link rel="stylesheet" href="../static/styles/form.css" />
+        <script src="../static/scripts/tools.js" defer></script>
+      </head>
+      <body>
+        <header>
+          <div class="logo">Academic Synergy Center</div>
+          <nav>
+            <a href="index.html">Home</a>
+          </nav>
+        </header>
+  </header><div class="container">
+    <h1>Sign up</h1>
+    <form action="/register" method="post">
+<div class="form-row">
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <div id="email-error" class="error"></div>
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="form-group">
+        <label for="first-name">First Name:</label>
+        <input type="text" id="first-name" name="first_name" required>
+    </div>
+    <div class="form-group">
+        <label for="last-name">Last Name:</label>
+        <input type="text" id="last-name" name="last_name" required>
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="form-group">
+        <label for="DoB">Date of Birth:</label>
+        <input type="date" id="DoB" name="DoB"  required>
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group">
+       <label for="role">Are you a student or a parent:</label>
+        <select id="role" class="role" name="role" required>
+        <option value="student">Student</option>
+        <option value="parent">Parent</option>
+      </select>
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+      <ul id="password-requirements" class="requirements-list">
+        <li id="req-length"></li>
+        <li id="req-uppercase"></li>
+        <li id="req-number"></li>
+        <li id="req-special"></li>
+      </ul>
+      <div id="password-success" class="success-message"></div>
+      
+      
+    </div>
+  </div>
+  
+  <div class="form-row">
+    <div class="form-group">
+      <label for="repeat-password">Repeat Password:</label>
+      <input type="password" id="repeat-password" name="repeat_password" required>
+      <div id="repeat-password-error" class="error"></div>
+    </div>
+  </div>
+  
+
+
+<button class="btn" type="submit" id="register-button"><span>Register</span></button>
+</form>
+
+    <p>Already have an account? <a href="signin.html">Sign In</a></p> 
+</div>
+</html>
+
+    

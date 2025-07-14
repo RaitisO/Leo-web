@@ -1,0 +1,62 @@
+package controllers
+
+import (
+	"Leo-web/models"
+	"database/sql"
+	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+)
+
+func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Invalid form", http.StatusBadRequest)
+		return
+	}
+
+	startStr := r.FormValue("start-time")
+	endStr := r.FormValue("end-time")
+	topic := r.FormValue("lesson-topic")
+
+	start, err := time.Parse("2006-01-02T15:04", startStr)
+	if err != nil {
+		http.Error(w, "Invalid start time", http.StatusBadRequest)
+		return
+	}
+
+	end, err := time.Parse("2006-01-02T15:04", endStr)
+	if err != nil {
+		http.Error(w, "Invalid end time", http.StatusBadRequest)
+		return
+	}
+
+	studentID, err := strconv.Atoi(r.FormValue("student-id"))
+	if err != nil {
+		http.Error(w, "Invalid student ID", http.StatusBadRequest)
+		return
+	}
+
+	teacherID, err := strconv.Atoi(r.FormValue("teacher-id"))
+	if err != nil {
+		http.Error(w, "Invalid teacher ID", http.StatusBadRequest)
+		return
+	}
+
+	lesson := models.Lesson{
+		StartTime: start,
+		EndTime:   end,
+		Topic:     topic,
+		StudentID: studentID,
+		TeacherID: teacherID,
+	}
+
+	if err := models.AddLesson(db, lesson); err != nil {
+		fmt.Println("DB error:", err)
+		http.Error(w, "Failed to save lesson", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

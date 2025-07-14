@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ACSYC - Home</title>
+  <link rel="stylesheet" href="../static/styles/index.css" />
+  
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span data-i18n="site.teacherName">Academic Synergy Center</span>
+      <select id="language-selector" class="lang-select">
+        <option value="en">🇬🇧</option>
+        <option value="lv">🇱🇻</option>
+      </select>
+      
+    </div>
+    <nav>
+      <a href="#" data-i18n="nav.home">Home</a>
+      <a href="#about" data-i18n="nav.about">About</a>
+      <a href="#lessons" data-i18n="nav.about">Lessons</a>
+      <a href="/blog" data-i18n="nav.about">Blog</a>
+      <a href="#events" data-i18n="nav.about">Events</a>
+      <a href="#contact" data-i18n="nav.contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="section">
+      <h1 data-i18n="index.headline">Welcome to Private Lessons</h1>
+      <p data-i18n="index.subheadline">Learn at your own pace with personalized sessions.</p>
+      <a href="../views/signin.html" class="btn" data-i18n="nav.login">Sign In</a>
+      <a href="../views/signup.html" class="btn" data-i18n="nav.signup">Sign Up</a>
+    </section>
+
+    <section id="about" class="section" >
+      <h2 data-i18n="about.title">About the Teacher</h2>
+      <p data-i18n="about.description">
+        I'm a private tutor with over 10 years of experience helping students improve in math,
+        science, and language studies. My teaching is personalized to each student's needs.
+      </p>
+    </section>
+
+    <section class="section" id="features">
+      <h2 data-i18n="features.title">Why Choose These Lessons?</h2>
+      <ul>
+        <li data-i18n="features.personalized">Personalized 1-on-1 lessons</li>
+        <li data-i18n="features.flexible">Flexible scheduling</li>
+        <li data-i18n="features.progress">Focus on student progress</li>
+      </ul>
+    </section>
+
+    <section id="contact" class="section">
+      <h2 data-i18n="contact.title">Contact</h2>
+      <p data-i18n="contact.email">Email: teacher@example.com</p>
+      <p data-i18n="contact.phone">Phone: +123 456 7890</p>
+      <p data-i18n="contact.location">Location: Online / In-person (City Name)</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 <span data-i18n="site.teacherName">[Teacher Name]</span>. <span data-i18n="footer.rights">All rights reserved.</span></p>
+  </footer>
+</body>
+<script>
+  function showSection(sectionId) {
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => section.style.display = 'none');
+    document.getElementById(sectionId).style.display = 'block';
+  }
+</script>
+</html>

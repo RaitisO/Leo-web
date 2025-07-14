@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Parent Dashboard</title>
+  <link rel="stylesheet" href="/static/styles/index.css">
+</head>
+<body>
+    <header>
+    <div class="logo">
+      <span data-i18n="site.teacherName">Academic Synergy Center</span>
+      <select id="language-selector" class="lang-select">
+        <option value="en">🇬🇧</option>
+        <option value="lv">🇱🇻</option>
+      </select>
+      
+    </div>
+    <nav>
+  <span>{{.FirstName}} {{.LastName}}</span>
+  <a  onclick="showSection('home-section')" data-i18n="nav.home">Home</a>
+  <a onclick="showSection('profile-section')" data-i18n="nav.profile">Profile</a>
+  <a href="/logout" data-i18n="nav.sign_out" class="btn">Sign out</a>
+</nav>
+
+  </header>
+  <div class="container">
+<section id="home-section" class="section">
+  <h1 data-i18n="student.headline">This is your parent dashboard.</h1>
+  <a>Not yet decided how this will look like and how the parent account will be connected to the student one</a>
+</section>
+
+<section id="profile-section" class="section" style="display: none;">
+  <h1 data-i18n="profile.headline">Your Profile</h1>
+  <p><strong>First Name:</strong> {{.FirstName}}</p>
+  <p><strong>Last Name:</strong> {{.LastName}}</p>
+  <p><strong>Email: </strong>{{.Email}}</p>
+  <p><strong>Date of Birth:</strong>{{.DateOfBirth}}</p>
+</section>
+
+  </div>
+</body>
+<script>
+  function showSection(sectionId) {
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => section.style.display = 'none');
+    document.getElementById(sectionId).style.display = 'block';
+  }
+</script>
+
+</html>

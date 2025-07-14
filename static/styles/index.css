@@ -1,0 +1,258 @@
+/* Reset some default browser styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  
+  /* Container setup */
+   main, footer {
+    max-width: 960px;
+    margin: auto;
+    padding: 1rem;
+  }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Header style */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+nav a {
+  margin-left: 1rem;
+  text-decoration: none;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+nav a:hover {
+  color: #007acc;
+}
+
+  
+  /* Home section */
+  #home {
+    text-align: center;
+    padding: 4rem 1rem;
+    background-color: #e8f0fe;
+    border-radius: 10px;
+    margin: 2rem 0;
+  }
+  
+  #home h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  #home p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #007acc;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+  }
+  
+  .btn:hover {
+    background-color: #005f99;
+  }
+  
+  /* About section */
+  .about, .features, .call-to-action {
+    background-color: #fff;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  .about h2, .features h2, .call-to-action h2 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+  
+  .features ul {
+    list-style: none;
+    padding-left: 1rem;
+  }
+  
+  .features li {
+    margin-bottom: 0.75rem;
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .features li::before {
+    content: '✔️';
+    position: absolute;
+    left: 0;
+  }
+  
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: #f1f1f1;
+    font-size: 0.9rem;
+    color: #666;
+    border-top: 1px solid #ddd;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  #home {
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: #eef6fa;
+  }
+  
+  #home h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  #home p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  #home .btn {
+    margin: 0.5rem;
+  }
+  
+  .section {
+    padding: 4rem 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+  
+  .section p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+  }
+  .gallery-section {
+    padding: 50px 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+  }
+  
+  .gallery-section h2 {
+    font-size: 2em;
+    margin-bottom: 30px;
+  }
+  
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 0 10px;
+  }
+  
+  .gallery-grid img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .gallery-grid img:hover {
+    transform: scale(1.05);
+  }
+  .lang-select {
+    font-size: 1.1rem;
+    background-color: #f4f4f4;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: background-color 0.3s, border 0.3s;
+  }
+  
+  .lang-select:hover,
+  .lang-select:focus {
+    background-color: #eaeaea;
+    border-color: #999;
+  }
+  
+  .lang-select option {
+    font-size: 1.1rem;
+  }
+  
+  .link:hover{
+    color: blueviolet;
+    cursor:pointer;
+  }
+  .join-zoom-button, .join-miro-button {
+  display: inline-block;
+  color: white;
+  padding: 10px 16px;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+.join-zoom-button{
+    background-color: #38AAd9;
+
+}
+.join-miro-button{
+    background-color: #F2D422;
+
+}
+.join-zoom-button:hover {
+  background-color: #1b6ed1;
+}
+.join-miro-button:hover {
+  background-color: #bca41b;
+}

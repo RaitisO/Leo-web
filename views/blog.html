@@ -1,0 +1,41 @@
+{{define "blog.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="/static/styles/blog.css">
+<head>
+  <meta charset="UTF-8">
+  <title>Blog</title>
+</head>
+<body>
+    <header>
+        {{if .LoggedIn}}
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/blog">Blog</a>
+                <a href="/logout">Logout</a>
+            </nav>
+        {{else}}
+            <nav>
+                <a href="/">Home</a>
+                <a href="/blog">Blog</a>
+                <a href="/signin">Sign In</a>
+            </nav>
+        {{end}}
+    </header>
+
+    <main>
+        <h1>Blog Posts</h1>
+        {{range .Posts}}
+            <article>
+                <h2>{{.Title}}</h2>
+                <small>Posted on {{.CreatedAt.Format "Jan 2, 2006 at 3:04pm"}}</small>
+                <p>{{.Content}}</p>
+                <hr>
+            </article>
+        {{else}}
+            <p>No blog posts yet.</p>
+        {{end}}
+    </main>
+</body>
+</html>
+{{end}}

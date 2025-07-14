@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="/static/styles/index.css">
+</head>
+<body>
+    <header>
+    <div class="logo">
+      <span data-i18n="site.teacherName">Academic Synergy Center</span>
+      <select id="language-selector" class="lang-select">
+        <option value="en">🇬🇧</option>
+        <option value="lv">🇱🇻</option>
+      </select>
+      
+    </div>
+    <nav>
+  <span>{{.FirstName}} {{.LastName}}</span>
+  <a  onclick="showSection('home-section')" data-i18n="nav.home">Home</a>
+  <a onclick="showSection('profile-section')" data-i18n="nav.profile">Profile</a>
+  <a href="/logout" data-i18n="nav.sign_out" class="btn">Sign out</a>
+</nav>
+
+  </header>
+  <div class="container">
+<section id="home-section" class="section">
+  <h1 data-i18n="student.headline">This is your student dashboard.</h1>
+  <ul>
+    <li class="link" onclick="showSection('book-section')">📅 View and book lessons</li>
+    <li class="link" onclick="showSection('studymaterial-section')">📚 Access study materials</li>
+    <li class="link" onclick="showSection('zoom-section')">📹 Join Zoom sessions</li>
+  </ul>
+</section>
+
+<section id="book-section" class="section" style="display: none;">
+  <h1 data-i18n="book.headline">Book a section!</h1>
+  <p><strong>Later will show all teachers with a book button like this example</strong></p>
+  <a>(of course it will look nicer that that this is just a simple example)</a>
+  <div>Teacher Name<button class="btn">Book</button></div>
+</section>
+<section id="studymaterial-section" class="section" style="display: none;">
+    <h1 data-i18n="study.headline">Study materials</h1>
+      <p><strong>will have links to study materials</strong></p>
+
+</section>
+<section id="zoom-section" class="section" style="display: none;">
+    <h1 data-i18n="zoom.headline">Join a zoom meeting</h1>
+      <p><strong>Could have relevant zoom links</strong></p>
+
+</section>
+<section id="profile-section" class="section" style="display: none;">
+  <h1 data-i18n="profile.headline">Your Profile</h1>
+  <p><strong>First Name:</strong> {{.FirstName}}</p>
+  <p><strong>Last Name:</strong> {{.LastName}}</p>
+  <p><strong>Email: </strong>{{.Email}}</p>
+  <p><strong>Date of Birth:</strong>{{.DateOfBirth}}</p>
+
+  <!-- Add more profile details if needed -->
+</section>
+  </div>
+</body>
+<script>
+  function showSection(sectionId) {
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => section.style.display = 'none');
+    document.getElementById(sectionId).style.display = 'block';
+  }
+</script>
+
+</html>
