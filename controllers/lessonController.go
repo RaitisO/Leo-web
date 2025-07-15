@@ -60,3 +60,20 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+func GetLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+	startStr := r.URL.Query().Get("start")
+	endStr := r.URL.Query().Get("end")
+	role := r.URL.Query().Get("role")
+
+	if startStr == "" || endStr == "" || role == "" {
+		http.Error(w, "Missing query parameters", http.StatusBadRequest)
+		return
+	}
+	switch role {
+	case "teacher":
+		//models.GetTeacherLessons()
+	case "admin":
+		//models.GetAllLessons()
+	}
+
+}

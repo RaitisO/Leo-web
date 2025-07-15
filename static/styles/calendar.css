@@ -38,8 +38,13 @@
 .calendar-slot {
   height: 50px;
   border: 1px solid #eee;
+  background-color: white;
 }
+.calendar-slot:hover{
+    border: 1px solid #6C0F5F;
+      cursor: pointer;
 
+}
 .calendar-day-label {
   padding: 4px 0;
   background: #f0f0f0;
@@ -55,7 +60,7 @@
 }
 
 .calendar-header button {
-  background-color: #4a90e2;
+  background-color: #6C0F5F;
   border: none;
   color: white;
   font-size: 1.2rem;
@@ -66,7 +71,7 @@
 }
 
 .calendar-header button:hover {
-  background-color: #357ab8;
+  background-color: #6c0f60d8;
 }
 
 .calendar-header h2 {
@@ -194,5 +199,10 @@
   height: 50px;
   border: 1px solid #357ab8;
   background-color: #357ab8;
-  border-radius: 20px;
+}
+.today-highlight {
+  background-color: #FF9A1F; /* Or any highlight color you want */
+  color: white;
+  border-radius: 8px;
+  padding: 4px;
 }

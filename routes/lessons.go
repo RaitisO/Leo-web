@@ -17,5 +17,12 @@ func LessonRoutes(db *sql.DB) {
 	})
 
 	http.HandleFunc("/api/users", handlers.GetUsersHandler(db))
+	http.HandleFunc("/get_lessons", func(w http.ResponseWriter, r *http.Request) {
 
+		if r.Method == "GET" {
+			controllers.GetLesson(db, w, r)
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 }

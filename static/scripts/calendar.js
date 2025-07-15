@@ -33,14 +33,27 @@ function renderWeek(baseDate = new Date()) {
   label.textContent = monthLabel;
 
   // Add day labels (Mon 17, Tue 18...)
-    week.forEach(date => {
-    const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
-    const dayNum = date.getDate();
-    const div = document.createElement("div");
-    div.className = "calendar-day-label";
-    div.textContent = `${dayName} ${dayNum}`;
-    dayLabels.appendChild(div);
-  });
+    const today = new Date();
+
+week.forEach(date => {
+  const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+  const dayNum = date.getDate();
+  const div = document.createElement("div");
+  div.className = "calendar-day-label";
+  div.textContent = `${dayName} ${dayNum}`;
+
+  // Check if this date is today (compare year, month, and date)
+  if (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  ) {
+    div.classList.add("today-highlight"); // Add a CSS class for today
+  }
+
+  dayLabels.appendChild(div);
+});
+
 
   // Add time labels (08:00–20:00)
   for (let hour = startHour; hour <= endHour; hour++) {
