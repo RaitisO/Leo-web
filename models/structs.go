@@ -29,3 +29,12 @@ type Lesson struct {
 	StudentID int
 	TeacherID int
 }
+type LessonInfo struct {
+	LessonTopic string    `json:"lesson_topic"`
+	StartTime   time.Time `json:"start_time"`
+	EndTime     time.Time `json:"end_time"`
+	StudentID   int       `json:"student_id"`
+	StudentName string    `json:"student_name"`
+	TeacherID   int       `json:"teacher_id"`
+	TeacherName string    `json:"teacher_name"`
+}

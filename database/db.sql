@@ -7,7 +7,6 @@ CREATE TABLE if NOT EXISTS users (
     last_name TEXT NOT NULL,
     date_of_birth DATE,
     role TEXT CHECK(role IN ('student', 'parent', 'teacher', 'admin')) NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Teachers can teach multiple subjects
