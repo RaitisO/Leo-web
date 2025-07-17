@@ -72,10 +72,9 @@ week.forEach(date => {
       grid.appendChild(slot);
     }
   }
-const pathParts = window.location.pathname.split('/');
-const role = pathParts[2]; // /dashboard/role/name → role is at index 2
 
-if (role === 'admin') {
+
+
   document.querySelectorAll('.calendar-slot').forEach(slot => {
     slot.addEventListener('click', () => {
       const day = parseInt(slot.dataset.day);
@@ -83,7 +82,7 @@ if (role === 'admin') {
       openSlotPopup(day, hour);
     });
   });
-}
+
 
 
   return week[0]; // return Monday of the week
@@ -230,6 +229,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 
 const startHour = 8;
-const endHour = 20;
+const endHour = 23;
 
 
