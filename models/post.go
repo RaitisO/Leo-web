@@ -42,7 +42,7 @@ func AddLesson(db *sql.DB, lesson Lesson) error {
 	)
 	return err
 }
-func GetTeacherLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, error) {
+func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, error) {
 	// Parse time
 	start, err := time.Parse(time.RFC3339, startStr)
 	if err != nil {

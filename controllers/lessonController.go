@@ -3,6 +3,7 @@ package controllers
 import (
 	"Leo-web/models"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -69,11 +70,31 @@ func GetLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing query parameters", http.StatusBadRequest)
 		return
 	}
+	var lessons []models.LessonInfo
+	var err error
 	switch role {
 	case "teacher":
-		//models.GetTeacherLessons()
+		/*lessons, err := models.GetTeacherLessons(db, startStr, endStr)
+		if err != nil {
+			http.Error(w, "error getting lessons", http.StatusBadRequest)
+			return
+
+		}*/
 	case "admin":
-		//models.GetAllLessons()
+		lessons, err = models.GetAllLessons(db, startStr, endStr)
+		if err != nil {
+			http.Error(w, "error getting lessons", http.StatusBadRequest)
+			return
+
+		}
+	default:
+		http.Error(w, "invalid role", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(lessons); err != nil {
+		http.Error(w, "error encoding json", http.StatusInternalServerError)
 	}
 
 }

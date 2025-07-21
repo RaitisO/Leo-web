@@ -25,7 +25,24 @@ function renderWeek(baseDate = new Date()) {
   
 
   const week = getWeekDates(baseDate);
+const monday = week[0];
+  const sunday = new Date(week[6]);
+  sunday.setHours(23, 59, 59, 999);
+  const startISO = monday.toISOString();
+  const endISO = sunday.toISOString();
+  const role = window.location.pathname.split('/')[2];
 
+  fetch(`/get_lessons?start=${encodeURIComponent(startISO)}&end=${encodeURIComponent(endISO)}&role=${encodeURIComponent(role)}`)
+    .then(response => {
+      if (!response.ok) throw new Error("Network response was not ok");
+      return response.json();
+    })
+    .then(data => {
+      console.log("Lessons for the week:", data);
+    })
+    .catch(error => {
+      console.error("Error fetching lessons:", error);
+    });
   // Month label (June–July 2025)
   const months = new Set(week.map(d => d.toLocaleString('default', { month: 'long' })));
   const year = week[0].getFullYear();
@@ -55,30 +72,43 @@ week.forEach(date => {
 });
 
 
-  // Add time labels (08:00–20:00)
-  for (let hour = startHour; hour <= endHour; hour++) {
-    const timeLabel = document.createElement("div");
-    timeLabel.textContent = `${String(hour).padStart(2, '0')}:00`;
-    times.appendChild(timeLabel);
-  }
+schedule.forEach(block => {
+  const timeLabel = document.createElement("div");
+  timeLabel.textContent = block.start;
+  timeLabel.className = block.type === "break" ? "break-label" : "lesson-label";
+  times.appendChild(timeLabel);
+});
 
   // Add empty grid slots (7 days × N hours)
-  for (let hour = startHour; hour <= endHour; hour++) {
-    for (let day = 0; day < 7; day++) {
-      const slot = document.createElement("div");
-      slot.className = "calendar-slot";
-      slot.dataset.day = day;
-      slot.dataset.hour = hour;
-      grid.appendChild(slot);
+schedule.forEach((block, index) => {
+  for (let day = 0; day < 7; day++) {
+    const slot = document.createElement("div");
+
+    slot.className = block.type === "lesson" 
+      ? "calendar-slot" 
+      : "calendar-break-slot"; // new class for break style
+
+    slot.dataset.day = day;
+    slot.dataset.start = block.start;
+    slot.dataset.end = block.end;
+
+
+    // Optional: disable interaction on break slots
+    if (block.type === "break") {
+      slot.style.pointerEvents = "none";
     }
+
+    grid.appendChild(slot);
   }
+});
+
 
 
 
   document.querySelectorAll('.calendar-slot').forEach(slot => {
     slot.addEventListener('click', () => {
       const day = parseInt(slot.dataset.day);
-      const hour = parseInt(slot.dataset.hour);
+      const hour = parseInt(slot.dataset.start);//TODO!!!!!<========== change this so it gives HH:MM instead of H
       openSlotPopup(day, hour);
     });
   });
@@ -88,33 +118,33 @@ week.forEach(date => {
   return week[0]; // return Monday of the week
 }
 
-function makeLessonSlot(start,end){
-  startdate = new Date(start);
-  enddate= new Date(end);
-  day = startdate.getDay();
-  day = day-(day===0?-6:1);
-  starthour = startdate.getHours();
-  endhour = enddate.getHours();
-  while(starthour<endhour){
-      slot=document.querySelector(`[data-day="${day}"][data-hour="${starthour}"]`);
-      if (slot) {
-         slot.classList.remove("calendar-slot");
-         slot.classList.add("lesson-slot"); // or add a class instead
-} else {
-  console.warn("Slot not found for", day, hour);
-}
-starthour++;
-  }
+function makeLessonSlot(start, end) {
+  const startDate = new Date(start);
+  const day = startDate.getDay() === 0 ? 6 : startDate.getDay() - 1;
 
+  const startHours = String(startDate.getHours()).padStart(2, "0");
+  const startMinutes = String(startDate.getMinutes()).padStart(2, "0");
+  const timeKey = `${startHours}:${startMinutes}`;
+
+  const slot = document.querySelector(`[data-day="${day}"][data-start="${timeKey}"]`);
+
+  if (slot) {
+    slot.classList.remove("calendar-slot");
+    slot.classList.add("lesson-slot");
+  } else {
+    console.warn("Slot not found for", day, timeKey);
+  }
 }
+
 function openSlotPopup(day, hour) {
   const popup = document.getElementById("slot-popup");
+console.log(hour)
 
   const baseMonday = getWeekDates(currentBaseDate)[0];
   const selectedDate = new Date(baseMonday);
   selectedDate.setDate(baseMonday.getDate() + day);
   selectedDate.setHours(hour, 0, 0, 0);
-
+  
   const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "short" });
   const dayNum = selectedDate.getDate();
   const month = selectedDate.toLocaleString("default", { month: "long" });
@@ -230,5 +260,29 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 const startHour = 8;
 const endHour = 23;
+const schedule = [
+  { start: "08:00", end: "09:00", type: "lesson" },
+  { start: "09:00", end: "10:00", type: "lesson" },
+  { start: "10:00", end: "10:15", type: "break" },
+  { start: "10:15", end: "11:15", type: "lesson" },
+  { start: "11:15", end: "12:15", type: "lesson" },
+  { start: "12:15", end: "12:30", type: "break" },
+  { start: "12:30", end: "13:30", type: "lesson" },
+  { start: "13:30", end: "14:30", type: "lesson" },
+  { start: "14:30", end: "14:45", type: "break" },
+  { start: "14:45", end: "15:45", type: "lesson" },
+  { start: "15:45", end: "16:45", type: "lesson" },
+  { start: "16:45", end: "17:00", type: "break" },
+  { start: "17:00", end: "18:00", type: "lesson" },
+  { start: "18:00", end: "19:00", type: "lesson" },
+  { start: "19:00", end: "19:15", type: "break" },
+  { start: "19:15", end: "20:15", type: "lesson" },
+  { start: "20:15", end: "21:15", type: "lesson" },
+  { start: "21:15", end: "21:30", type: "break" },
+  { start: "21:30", end: "22:30", type: "lesson" },
+  { start: "22:30", end: "23:30", type: "lesson" },
+  { start: "23:30", end: "23:45", type: "break" },
+  { start: "23:45", end: "00:45", type: "lesson" }
+];
 
 
