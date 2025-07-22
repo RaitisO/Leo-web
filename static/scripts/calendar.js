@@ -39,6 +39,9 @@ const monday = week[0];
     })
     .then(data => {
       console.log("Lessons for the week:", data);
+      data.forEach(lesson=>{
+        makeLessonSlot(lesson.start_time,lesson.end_time);
+      });
     })
     .catch(error => {
       console.error("Error fetching lessons:", error);
@@ -74,26 +77,29 @@ week.forEach(date => {
 
 schedule.forEach(block => {
   const timeLabel = document.createElement("div");
-  timeLabel.textContent = block.start;
+  timeLabel.textContent = shiftTime(block.start, offsetMinutes); // shift to local time
   timeLabel.className = block.type === "break" ? "break-label" : "lesson-label";
   times.appendChild(timeLabel);
 });
 
+
   // Add empty grid slots (7 days × N hours)
-schedule.forEach((block, index) => {
+schedule.forEach(block => {
   for (let day = 0; day < 7; day++) {
     const slot = document.createElement("div");
 
     slot.className = block.type === "lesson" 
       ? "calendar-slot" 
-      : "calendar-break-slot"; // new class for break style
+      : "calendar-break-slot";
+
+    // Convert start/end to local time for dataset
+    const localStart = shiftTime(block.start, offsetMinutes);
+    const localEnd = shiftTime(block.end, offsetMinutes);
 
     slot.dataset.day = day;
-    slot.dataset.start = block.start;
-    slot.dataset.end = block.end;
+    slot.dataset.start = localStart;
+    slot.dataset.end = localEnd;
 
-
-    // Optional: disable interaction on break slots
     if (block.type === "break") {
       slot.style.pointerEvents = "none";
     }
@@ -105,10 +111,11 @@ schedule.forEach((block, index) => {
 
 
 
+
   document.querySelectorAll('.calendar-slot').forEach(slot => {
     slot.addEventListener('click', () => {
       const day = parseInt(slot.dataset.day);
-      const hour = parseInt(slot.dataset.start);//TODO!!!!!<========== change this so it gives HH:MM instead of H
+      const hour = slot.dataset.start;//TODO!!!!!<========== change this so it gives HH:MM instead of H
       openSlotPopup(day, hour);
     });
   });
@@ -117,9 +124,31 @@ schedule.forEach((block, index) => {
 
   return week[0]; // return Monday of the week
 }
+// Get user's current timezone offset in minutes (e.g. +180 for GMT+3, -240 for EDT)
+const offsetMinutes = new Date().getTimezoneOffset() * -1;
+console.log("offset:",offsetMinutes)
+
+// Helper function to shift a UTC time string like "05:00" by offsetMinutes
+function shiftTime(utcTimeStr, offsetMinutes) {
+  const [hours, minutes] = utcTimeStr.split(":").map(Number);
+
+  // Create a Date object assuming it's in UTC (not local)
+  const utcDate = new Date(Date.UTC(1970, 0, 1, hours, minutes));
+
+  // Shift by the offset
+  utcDate.setMinutes(utcDate.getMinutes() + offsetMinutes);
+
+  const localHours = String(utcDate.getUTCHours()).padStart(2, "0");
+  const localMinutes = String(utcDate.getUTCMinutes()).padStart(2, "0");
+
+  return `${localHours}:${localMinutes}`;
+}
+
 
 function makeLessonSlot(start, end) {
   const startDate = new Date(start);
+  const endDate = new Date(end);
+  console.log(start,"\n",end);
   const day = startDate.getDay() === 0 ? 6 : startDate.getDay() - 1;
 
   const startHours = String(startDate.getHours()).padStart(2, "0");
@@ -131,20 +160,33 @@ function makeLessonSlot(start, end) {
   if (slot) {
     slot.classList.remove("calendar-slot");
     slot.classList.add("lesson-slot");
+
+    const endHours = String(endDate.getHours()).padStart(2, "0");
+    const endMinutes = String(endDate.getMinutes()).padStart(2, "0");
+
+    const timeLabel = document.createElement("div");
+    timeLabel.className = "lesson-time-label";
+    timeLabel.textContent = `${startHours}:${startMinutes} - ${endHours}:${endMinutes}`;
+
+    slot.appendChild(timeLabel);
   } else {
     console.warn("Slot not found for", day, timeKey);
   }
 }
 
-function openSlotPopup(day, hour) {
+
+function openSlotPopup(day, time) {
   const popup = document.getElementById("slot-popup");
-console.log(hour)
+
+  const [hourStr, minuteStr] = time.split(":");
+  const hour = parseInt(hourStr);
+  const minutes = parseInt(minuteStr);
 
   const baseMonday = getWeekDates(currentBaseDate)[0];
   const selectedDate = new Date(baseMonday);
   selectedDate.setDate(baseMonday.getDate() + day);
-  selectedDate.setHours(hour, 0, 0, 0);
-  
+  selectedDate.setHours(hour, minutes, 0, 0);
+
   const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "short" });
   const dayNum = selectedDate.getDate();
   const month = selectedDate.toLocaleString("default", { month: "long" });
@@ -154,17 +196,42 @@ console.log(hour)
 
   const startTimeStr = selectedDate.toTimeString().slice(0, 5);
   const endDate = new Date(selectedDate);
-  endDate.setHours(hour + 1, 0, 0, 0);
+  endDate.setHours(hour + 1, minutes, 0, 0);
   const endTimeStr = endDate.toTimeString().slice(0, 5);
 
+  // Set both hidden inputs and visible display spans
   document.getElementById("start-time").value = startTimeStr;
   document.getElementById("end-time").value = endTimeStr;
+  document.getElementById("start-time-display").textContent = startTimeStr;
+  document.getElementById("end-time-display").textContent = endTimeStr;
 
-  // Optional: clear old inputs
- 
+  // Reset custom time checkbox and toggle state
+  const customTimeToggle = document.getElementById("custom-time-toggle");
+  customTimeToggle.checked = false;
+  toggleTimeFields(false);
 
   popup.style.display = "flex";
 }
+function toggleTimeFields(showInputs) {
+  const startTimeInput = document.getElementById("start-time");
+  const endTimeInput = document.getElementById("end-time");
+  const startDisplay = document.getElementById("start-time-display");
+  const endDisplay = document.getElementById("end-time-display");
+
+  if (showInputs) {
+    startTimeInput.style.display = "inline-block";
+    endTimeInput.style.display = "inline-block";
+    startDisplay.style.display = "none";
+    endDisplay.style.display = "none";
+  } else {
+    startTimeInput.style.display = "none";
+    endTimeInput.style.display = "none";
+    startDisplay.style.display = "inline-block";
+    endDisplay.style.display = "inline-block";
+  }
+}
+
+
 
 
 let currentBaseDate = new Date();
@@ -184,6 +251,10 @@ document.addEventListener("DOMContentLoaded", () => {
 document.getElementById("close-popup").addEventListener("click", () => {
   document.getElementById("slot-popup").style.display = "none";
 });
+document.getElementById("custom-time-toggle").addEventListener("change", function () {
+  toggleTimeFields(this.checked);
+});
+
 });
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("lesson-form");
@@ -203,9 +274,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const startTime = document.getElementById("start-time").value; // "HH:MM"
     const endTime = document.getElementById("end-time").value;
 
-    // Build full datetime strings
-    const fullStart = `${yyyy}-${mm}-${dd}T${startTime}`;
-    const fullEnd = `${yyyy}-${mm}-${dd}T${endTime}`;
+    // Build a Date object using local time
+const localStart = new Date(`${yyyy}-${mm}-${dd}T${startTime}`);
+const localEnd = new Date(`${yyyy}-${mm}-${dd}T${endTime}`);
+
+// Convert to UTC string in ISO format without milliseconds and 'Z'
+const fullStart = localStart.toISOString().slice(0, 16); // "2025-07-23T06:00"
+const fullEnd = localEnd.toISOString().slice(0, 16);
+
 
     // Create FormData and append full datetime values
     const formData = new FormData(form);
@@ -220,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (response.ok) {
           console.log("Lesson added successfully!");
           document.getElementById("slot-popup").style.display = "none";
-          makeLessonSlot(fullStart,fullEnd);
+          makeLessonSlot(localStart,localEnd);
         } else {
           console.error("Error submitting form");
         }
@@ -258,31 +334,31 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-const startHour = 8;
-const endHour = 23;
+
 const schedule = [
-  { start: "08:00", end: "09:00", type: "lesson" },
-  { start: "09:00", end: "10:00", type: "lesson" },
-  { start: "10:00", end: "10:15", type: "break" },
-  { start: "10:15", end: "11:15", type: "lesson" },
-  { start: "11:15", end: "12:15", type: "lesson" },
-  { start: "12:15", end: "12:30", type: "break" },
-  { start: "12:30", end: "13:30", type: "lesson" },
-  { start: "13:30", end: "14:30", type: "lesson" },
-  { start: "14:30", end: "14:45", type: "break" },
-  { start: "14:45", end: "15:45", type: "lesson" },
-  { start: "15:45", end: "16:45", type: "lesson" },
-  { start: "16:45", end: "17:00", type: "break" },
-  { start: "17:00", end: "18:00", type: "lesson" },
-  { start: "18:00", end: "19:00", type: "lesson" },
-  { start: "19:00", end: "19:15", type: "break" },
-  { start: "19:15", end: "20:15", type: "lesson" },
-  { start: "20:15", end: "21:15", type: "lesson" },
-  { start: "21:15", end: "21:30", type: "break" },
-  { start: "21:30", end: "22:30", type: "lesson" },
-  { start: "22:30", end: "23:30", type: "lesson" },
-  { start: "23:30", end: "23:45", type: "break" },
-  { start: "23:45", end: "00:45", type: "lesson" }
+  { start: "05:00", end: "06:00", type: "lesson" },
+  { start: "06:00", end: "07:00", type: "lesson" },
+  { start: "07:00", end: "07:15", type: "break" },
+  { start: "07:15", end: "08:15", type: "lesson" },
+  { start: "08:15", end: "09:15", type: "lesson" },
+  { start: "09:15", end: "09:30", type: "break" },
+  { start: "09:30", end: "10:30", type: "lesson" },
+  { start: "10:30", end: "11:30", type: "lesson" },
+  { start: "11:30", end: "11:45", type: "break" },
+  { start: "11:45", end: "12:45", type: "lesson" },
+  { start: "12:45", end: "13:45", type: "lesson" },
+  { start: "13:45", end: "14:00", type: "break" },
+  { start: "14:00", end: "15:00", type: "lesson" },
+  { start: "15:00", end: "16:00", type: "lesson" },
+  { start: "16:00", end: "16:15", type: "break" },
+  { start: "16:15", end: "17:15", type: "lesson" },
+  { start: "17:15", end: "18:15", type: "lesson" },
+  { start: "18:15", end: "18:30", type: "break" },
+  { start: "18:30", end: "19:30", type: "lesson" },
+  { start: "19:30", end: "20:30", type: "lesson" },
+  { start: "20:30", end: "20:45", type: "break" },
+  { start: "20:45", end: "21:45", type: "lesson" }
 ];
+
 
 

@@ -228,3 +228,10 @@
   font-weight: bold;
   height: 50px;
 }
+.lesson-time-label {
+  font-size: 0.8em;
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-top: 2px;
+}

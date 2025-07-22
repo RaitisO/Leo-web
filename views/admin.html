@@ -105,12 +105,19 @@
 <form id="lesson-form">
   <p id="popup-date"></p>
 
+    <label>
+    <input type="checkbox" id="custom-time-toggle">
+    Add special time
+  </label>
+
   <div class="time-fields">
-    <label for="start-time">Start Time:
-      <input type="time"  id="start-time" name="start-time">
+    <label>Start Time:
+      <span id="start-time-display"></span>
+      <input type="time" id="start-time" name="start-time" style="display:none;">
     </label>
-    <label for="end-time">End Time:
-      <input type="time"  id="end-time" name="end-time">
+    <label>End Time:
+      <span id="end-time-display"></span>
+      <input type="time" id="end-time" name="end-time" style="display:none;">
     </label>
   </div>
   
