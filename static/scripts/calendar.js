@@ -1,18 +1,32 @@
-function getWeekDates(baseDate = new Date()) {
-  const date = new Date(baseDate);
-  const day = date.getDay(); // 0 (Sun) - 6 (Sat)
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Monday start
-  const monday = new Date(date.setDate(diff));
-  const week = [];
+//CONSTANTS
+const offsetMinutes = new Date().getTimezoneOffset() * -1;
+let currentBaseDate = new Date();
+const schedule = [
+  { start: "05:00", end: "06:00", type: "lesson" },
+  { start: "06:00", end: "07:00", type: "lesson" },
+  { start: "07:00", end: "07:15", type: "break" },
+  { start: "07:15", end: "08:15", type: "lesson" },
+  { start: "08:15", end: "09:15", type: "lesson" },
+  { start: "09:15", end: "09:30", type: "break" },
+  { start: "09:30", end: "10:30", type: "lesson" },
+  { start: "10:30", end: "11:30", type: "lesson" },
+  { start: "11:30", end: "11:45", type: "break" },
+  { start: "11:45", end: "12:45", type: "lesson" },
+  { start: "12:45", end: "13:45", type: "lesson" },
+  { start: "13:45", end: "14:00", type: "break" },
+  { start: "14:00", end: "15:00", type: "lesson" },
+  { start: "15:00", end: "16:00", type: "lesson" },
+  { start: "16:00", end: "16:15", type: "break" },
+  { start: "16:15", end: "17:15", type: "lesson" },
+  { start: "17:15", end: "18:15", type: "lesson" },
+  { start: "18:15", end: "18:30", type: "break" },
+  { start: "18:30", end: "19:30", type: "lesson" },
+  { start: "19:30", end: "20:30", type: "lesson" },
+  { start: "20:30", end: "20:45", type: "break" },
+  { start: "20:45", end: "21:45", type: "lesson" }
+];
 
-  for (let i = 0; i < 7; i++) {
-    const current = new Date(monday);
-    current.setDate(monday.getDate() + i);
-    week.push(current);
-  }
-  return week;
-}
-
+//Functions for rendering the calendar
 function renderWeek(baseDate = new Date()) {
   const grid = document.getElementById("calendar-grid");
   const times = document.querySelectorAll("#calendar-times")[1]; // 2nd one is for grid
@@ -40,7 +54,7 @@ const monday = week[0];
     .then(data => {
       console.log("Lessons for the week:", data);
       data.forEach(lesson=>{
-        makeLessonSlot(lesson.start_time,lesson.end_time);
+        makeLessonSlot(lesson.start_time,lesson.end_time,lesson.student_name,lesson.teacher_name);
       });
     })
     .catch(error => {
@@ -112,40 +126,26 @@ schedule.forEach(block => {
 
 
 
-  document.querySelectorAll('.calendar-slot').forEach(slot => {
-    slot.addEventListener('click', () => {
+document.querySelectorAll('.calendar-slot, .lesson-slot').forEach(slot => {
+  slot.addEventListener('click', () => {
+    if (slot.classList.contains('lesson-slot')) {
+      // Show view/edit popup for existing lesson
+      openLessonInfoPopup(slot);
+    } else {
+      // Open regular "create new lesson" popup
       const day = parseInt(slot.dataset.day);
-      const hour = slot.dataset.start;//TODO!!!!!<========== change this so it gives HH:MM instead of H
+      const hour = slot.dataset.start;
       openSlotPopup(day, hour);
-    });
+    }
   });
+});
+
 
 
 
   return week[0]; // return Monday of the week
 }
-// Get user's current timezone offset in minutes (e.g. +180 for GMT+3, -240 for EDT)
-const offsetMinutes = new Date().getTimezoneOffset() * -1;
-console.log("offset:",offsetMinutes)
-
-// Helper function to shift a UTC time string like "05:00" by offsetMinutes
-function shiftTime(utcTimeStr, offsetMinutes) {
-  const [hours, minutes] = utcTimeStr.split(":").map(Number);
-
-  // Create a Date object assuming it's in UTC (not local)
-  const utcDate = new Date(Date.UTC(1970, 0, 1, hours, minutes));
-
-  // Shift by the offset
-  utcDate.setMinutes(utcDate.getMinutes() + offsetMinutes);
-
-  const localHours = String(utcDate.getUTCHours()).padStart(2, "0");
-  const localMinutes = String(utcDate.getUTCMinutes()).padStart(2, "0");
-
-  return `${localHours}:${localMinutes}`;
-}
-
-
-function makeLessonSlot(start, end) {
+function makeLessonSlot(start, end, student, teacher) {
   const startDate = new Date(start);
   const endDate = new Date(end);
   console.log(start,"\n",end);
@@ -160,21 +160,33 @@ function makeLessonSlot(start, end) {
   if (slot) {
     slot.classList.remove("calendar-slot");
     slot.classList.add("lesson-slot");
+    
 
     const endHours = String(endDate.getHours()).padStart(2, "0");
     const endMinutes = String(endDate.getMinutes()).padStart(2, "0");
 
     const timeLabel = document.createElement("div");
+    const studentNameLabel = document.createElement("div");
+    const teacherNameLabel = document.createElement("div");
+    studentNameLabel.className = "student-name-label";
+    studentNameLabel.textContent = `${student}`
+    teacherNameLabel.className = "teacher-name-label";
+    teacherNameLabel.textContent = `${teacher}`
     timeLabel.className = "lesson-time-label";
     timeLabel.textContent = `${startHours}:${startMinutes} - ${endHours}:${endMinutes}`;
-
+    
     slot.appendChild(timeLabel);
+    slot.appendChild(studentNameLabel);
+    slot.appendChild(teacherNameLabel);
+    slot.dataset.student_name = student;
+    slot.dataset.teacher_name = teacher;
+
   } else {
     console.warn("Slot not found for", day, timeKey);
   }
 }
 
-
+//Popup functions
 function openSlotPopup(day, time) {
   const popup = document.getElementById("slot-popup");
 
@@ -212,6 +224,75 @@ function openSlotPopup(day, time) {
 
   popup.style.display = "flex";
 }
+function openLessonInfoPopup(slot) {
+  // You should already store these attributes when creating lesson slots
+  const studentName = slot.dataset.student_name;
+  const teacherName = slot.dataset.teacher_name;
+  const start = slot.dataset.start;
+  const end = slot.dataset.end;
+
+  // Create popup container
+  const popup = document.createElement("div");
+  popup.className = "info-popup-overlay";
+  popup.id ="popup-overlay"
+
+  popup.innerHTML = `<div class="lesson-info-popup">
+    <span id="close-lesson-popup-btn" class="close-popup">&times;</span>
+    <h3>Lesson Details</h3>
+    <p><strong>Student:</strong> ${studentName}</p>
+    <p><strong>Teacher:</strong> ${teacherName}</p>
+    <p><strong>Start:</strong> ${start}</p>
+    <p><strong>End:</strong> ${end}</p>
+    <div class="popup-buttons">
+      <button id="edit-lesson-btn">Edit</button>
+      <button id="cancel">Cancel</button>
+    </div>
+    </div>
+  `;
+
+  // Append and fade in (optional)
+  document.body.appendChild(popup);
+
+  // Close button logic
+ document.getElementById("close-lesson-popup-btn").addEventListener("click", () => {
+    popup.remove();
+  });
+  // Placeholder for edit logic
+  document.getElementById("edit-lesson-btn").addEventListener("click", () => {
+    console.log("Edit button clicked for", studentName, teacherName, start);
+    // You can swap this out later for an actual edit popup
+  });
+}
+
+//Helper functions
+function shiftTime(utcTimeStr, offsetMinutes) {
+  const [hours, minutes] = utcTimeStr.split(":").map(Number);
+
+  // Create a Date object assuming it's in UTC (not local)
+  const utcDate = new Date(Date.UTC(1970, 0, 1, hours, minutes));
+
+  // Shift by the offset
+  utcDate.setMinutes(utcDate.getMinutes() + offsetMinutes);
+
+  const localHours = String(utcDate.getUTCHours()).padStart(2, "0");
+  const localMinutes = String(utcDate.getUTCMinutes()).padStart(2, "0");
+
+  return `${localHours}:${localMinutes}`;
+}
+function getWeekDates(baseDate = new Date()) {
+  const date = new Date(baseDate);
+  const day = date.getDay(); // 0 (Sun) - 6 (Sat)
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Monday start
+  const monday = new Date(date.setDate(diff));
+  const week = [];
+
+  for (let i = 0; i < 7; i++) {
+    const current = new Date(monday);
+    current.setDate(monday.getDate() + i);
+    week.push(current);
+  }
+  return week;
+}
 function toggleTimeFields(showInputs) {
   const startTimeInput = document.getElementById("start-time");
   const endTimeInput = document.getElementById("end-time");
@@ -231,11 +312,7 @@ function toggleTimeFields(showInputs) {
   }
 }
 
-
-
-
-let currentBaseDate = new Date();
-
+//Even Listeners
 document.addEventListener("DOMContentLoaded", () => {
   renderWeek(currentBaseDate);
 
@@ -281,7 +358,10 @@ const localEnd = new Date(`${yyyy}-${mm}-${dd}T${endTime}`);
 // Convert to UTC string in ISO format without milliseconds and 'Z'
 const fullStart = localStart.toISOString().slice(0, 16); // "2025-07-23T06:00"
 const fullEnd = localEnd.toISOString().slice(0, 16);
-
+const teacherSelect = document.getElementById("teacher-select");
+const teacherName = teacherSelect.options[teacherSelect.selectedIndex].text;
+const studentSelect = document.getElementById("student-select");
+const studentName = studentSelect.options[studentSelect.selectedIndex].text;
 
     // Create FormData and append full datetime values
     const formData = new FormData(form);
@@ -296,7 +376,7 @@ const fullEnd = localEnd.toISOString().slice(0, 16);
         if (response.ok) {
           console.log("Lesson added successfully!");
           document.getElementById("slot-popup").style.display = "none";
-          makeLessonSlot(localStart,localEnd);
+          makeLessonSlot(localStart,localEnd,studentName,teacherName);
         } else {
           console.error("Error submitting form");
         }
@@ -306,8 +386,6 @@ const fullEnd = localEnd.toISOString().slice(0, 16);
       });
   });
 });
-
-
 window.addEventListener('DOMContentLoaded', async () => {
   const res = await fetch('/api/users');
   const data = await res.json();
@@ -333,32 +411,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   new TomSelect('#student-select', { create: false, sortField: 'text' });
 });
 
-
-
-const schedule = [
-  { start: "05:00", end: "06:00", type: "lesson" },
-  { start: "06:00", end: "07:00", type: "lesson" },
-  { start: "07:00", end: "07:15", type: "break" },
-  { start: "07:15", end: "08:15", type: "lesson" },
-  { start: "08:15", end: "09:15", type: "lesson" },
-  { start: "09:15", end: "09:30", type: "break" },
-  { start: "09:30", end: "10:30", type: "lesson" },
-  { start: "10:30", end: "11:30", type: "lesson" },
-  { start: "11:30", end: "11:45", type: "break" },
-  { start: "11:45", end: "12:45", type: "lesson" },
-  { start: "12:45", end: "13:45", type: "lesson" },
-  { start: "13:45", end: "14:00", type: "break" },
-  { start: "14:00", end: "15:00", type: "lesson" },
-  { start: "15:00", end: "16:00", type: "lesson" },
-  { start: "16:00", end: "16:15", type: "break" },
-  { start: "16:15", end: "17:15", type: "lesson" },
-  { start: "17:15", end: "18:15", type: "lesson" },
-  { start: "18:15", end: "18:30", type: "break" },
-  { start: "18:30", end: "19:30", type: "lesson" },
-  { start: "19:30", end: "20:30", type: "lesson" },
-  { start: "20:30", end: "20:45", type: "break" },
-  { start: "20:45", end: "21:45", type: "lesson" }
-];
 
 
 

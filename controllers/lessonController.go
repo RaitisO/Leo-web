@@ -52,7 +52,6 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		StudentID: studentID,
 		TeacherID: teacherID,
 	}
-	fmt.Println("Lesson: ", lesson)
 	if err := models.AddLesson(db, lesson); err != nil {
 		fmt.Println("DB error:", err)
 		http.Error(w, "Failed to save lesson", http.StatusInternalServerError)
