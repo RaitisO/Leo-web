@@ -52,7 +52,6 @@ const monday = week[0];
       return response.json();
     })
     .then(data => {
-      console.log("Lessons for the week:", data);
       data.forEach(lesson=>{
         makeLessonSlot(lesson.start_time,lesson.end_time,lesson.student_name,lesson.teacher_name,lesson.lesson_id);
       });
@@ -148,7 +147,6 @@ document.querySelectorAll('.calendar-slot, .lesson-slot').forEach(slot => {
 function makeLessonSlot(start, end, student, teacher,lesson_id) {
   const startDate = new Date(start);
   const endDate = new Date(end);
-  console.log(start,"\n",end);
   const day = startDate.getDay() === 0 ? 6 : startDate.getDay() - 1;
 
   const startHours = String(startDate.getHours()).padStart(2, "0");
@@ -260,10 +258,10 @@ function openLessonInfoPopup(slot) {
     popup.remove();
   });
   // Placeholder for edit logic
-  document.getElementById("edit-lesson-btn").addEventListener("click", () => {
-    console.log("Edit button clicked for", studentName, teacherName, start);
-    // You can swap this out later for an actual edit popup
-  });
+ document.getElementById("edit-lesson-btn").addEventListener("click", () => {
+  editPopup(slot);
+});
+
   document.getElementById("cancel-lesson-btn").addEventListener("click", () => {
     warningPopup(lessonID);
   });
@@ -305,6 +303,51 @@ document.getElementById("confirm-cancel-no").addEventListener("click", () => {
 });
 
 }
+function editPopup(slot) {
+  // Close info popup first
+  const lessonID = slot.dataset.lesson_id;
+  const infoPopup = document.getElementById("popup-overlay");
+  if (infoPopup) infoPopup.remove();
+
+  // Open the form popup
+  const popup = document.getElementById("slot-popup");
+  popup.style.display = "flex";
+
+  // Change title
+  popup.querySelector("h3").textContent = "Edit Lesson";
+
+  // Change button text
+  const submitBtn = document.getElementById("create-lesson");
+  submitBtn.textContent = "Save Changes";
+
+  // OPTIONAL: style the button
+  submitBtn.classList.add("save-changes");
+  submitBtn.classList.remove("create");
+
+  // Store lesson ID somewhere (e.g., dataset)
+  submitBtn.dataset.lessonId = lessonID;
+
+  // Prefill data (you can pass this via `slot.dataset`)
+  // Example:
+  document.getElementById("teacher-select").value = slot.dataset.teacher_id;
+  document.getElementById("student-select").value = slot.dataset.student_id;
+  document.getElementById("lesson-topic").value = slot.dataset.topic || "";
+
+  // Set time inputs
+  document.getElementById("start-time").value = slot.dataset.start.slice(11, 16); // HH:MM
+  document.getElementById("end-time").value = slot.dataset.end.slice(11, 16);
+  document.getElementById("start-time-display").textContent = slot.dataset.start.slice(11, 16);
+  document.getElementById("end-time-display").textContent = slot.dataset.end.slice(11, 16);
+
+  // Ensure time fields are visible if needed
+  document.getElementById("custom-time-toggle").checked = true;
+  toggleTimeFields(true);
+
+  // Optional: attach a flag to the form for edit mode
+  document.getElementById("lesson-form").dataset.mode = "edit";
+}
+
+
 //Helper functions
 function shiftTime(utcTimeStr, offsetMinutes) {
   const [hours, minutes] = utcTimeStr.split(":").map(Number);
