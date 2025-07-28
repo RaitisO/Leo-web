@@ -100,18 +100,17 @@ func GetLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
 }
 func DeleteLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Invalid form data", http.StatusBadRequest)
+	lessonIDStr := r.URL.Query().Get("id") // get from query string
+	if lessonIDStr == "" {
+		http.Error(w, "Missing lesson ID", http.StatusBadRequest)
 		return
 	}
 
-	lessonIDStr := r.FormValue("lesson_id")
 	lessonID, err := strconv.Atoi(lessonIDStr)
 	if err != nil {
 		http.Error(w, "Invalid lesson ID", http.StatusBadRequest)
 		return
 	}
-
 	err = models.DeleteLesson(db, lessonID)
 	if err != nil {
 		http.Error(w, "Failed to delete lesson", http.StatusInternalServerError)

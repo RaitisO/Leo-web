@@ -247,7 +247,7 @@ function openLessonInfoPopup(slot) {
     <p><strong>End:</strong> ${end}</p>
     <div class="popup-buttons">
       <button id="edit-lesson-btn">Edit</button>
-      <button id="cancel-lesson-btn">Cancel</button>
+      <button id="cancel-lesson-btn">Cancel Lesson</button>
     </div>
     </div>
   `;
@@ -287,22 +287,19 @@ document.getElementById("confirm-cancel-no").addEventListener("click", () => {
     popup.remove();
   });
   document.getElementById("confirm-cancel-yes").addEventListener("click", () => {
-  // Prepare form data
-  const formData = new FormData();
-  formData.append("lesson_id", lessonID);
-
   // Send POST request to /deletelesson
-  fetch("/delete_lesson", {
-    method: "POST",
-    body: formData
-  })
+ fetch(`/delete_lesson?id=${lessonID}`, {
+  method: "POST",
+})
   .then(response => {
     if (response.ok) {
       location.reload();
+    } else{
+      console.error("Failed to delete lesson");
     }
   })
   .catch(error => {
-    console.error("Error deleting lesson:", error);
+    console.error("Network error:", err);
     alert("There was an error cancelling the lesson.");
   });
 });
