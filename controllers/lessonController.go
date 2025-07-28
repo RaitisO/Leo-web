@@ -52,13 +52,15 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		StudentID: studentID,
 		TeacherID: teacherID,
 	}
-	if err := models.AddLesson(db, lesson); err != nil {
+	id, err := models.AddLesson(db, lesson)
+	if err != nil {
 		fmt.Println("DB error:", err)
 		http.Error(w, "Failed to save lesson", http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]int64{"lesson_id": id})
 }
 func GetLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	startStr := r.URL.Query().Get("start")
@@ -96,4 +98,25 @@ func GetLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error encoding json", http.StatusInternalServerError)
 	}
 
+}
+func DeleteLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	lessonIDStr := r.FormValue("lesson_id")
+	lessonID, err := strconv.Atoi(lessonIDStr)
+	if err != nil {
+		http.Error(w, "Invalid lesson ID", http.StatusBadRequest)
+		return
+	}
+
+	err = models.DeleteLesson(db, lessonID)
+	if err != nil {
+		http.Error(w, "Failed to delete lesson", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

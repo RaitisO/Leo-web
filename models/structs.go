@@ -30,6 +30,7 @@ type Lesson struct {
 	TeacherID int
 }
 type LessonInfo struct {
+	LessonID    int       `json:"lesson_id"`
 	LessonTopic string    `json:"lesson_topic"`
 	StartTime   time.Time `json:"start_time"`
 	EndTime     time.Time `json:"end_time"`

@@ -54,7 +54,7 @@ const monday = week[0];
     .then(data => {
       console.log("Lessons for the week:", data);
       data.forEach(lesson=>{
-        makeLessonSlot(lesson.start_time,lesson.end_time,lesson.student_name,lesson.teacher_name);
+        makeLessonSlot(lesson.start_time,lesson.end_time,lesson.student_name,lesson.teacher_name,lesson.lesson_id);
       });
     })
     .catch(error => {
@@ -145,7 +145,7 @@ document.querySelectorAll('.calendar-slot, .lesson-slot').forEach(slot => {
 
   return week[0]; // return Monday of the week
 }
-function makeLessonSlot(start, end, student, teacher) {
+function makeLessonSlot(start, end, student, teacher,lesson_id) {
   const startDate = new Date(start);
   const endDate = new Date(end);
   console.log(start,"\n",end);
@@ -180,6 +180,7 @@ function makeLessonSlot(start, end, student, teacher) {
     slot.appendChild(teacherNameLabel);
     slot.dataset.student_name = student;
     slot.dataset.teacher_name = teacher;
+    slot.dataset.lesson_id=lesson_id;
 
   } else {
     console.warn("Slot not found for", day, timeKey);
@@ -230,6 +231,7 @@ function openLessonInfoPopup(slot) {
   const teacherName = slot.dataset.teacher_name;
   const start = slot.dataset.start;
   const end = slot.dataset.end;
+  const lessonID = slot.dataset.lesson_id
 
   // Create popup container
   const popup = document.createElement("div");
@@ -245,7 +247,7 @@ function openLessonInfoPopup(slot) {
     <p><strong>End:</strong> ${end}</p>
     <div class="popup-buttons">
       <button id="edit-lesson-btn">Edit</button>
-      <button id="cancel">Cancel</button>
+      <button id="cancel-lesson-btn">Cancel</button>
     </div>
     </div>
   `;
@@ -262,8 +264,50 @@ function openLessonInfoPopup(slot) {
     console.log("Edit button clicked for", studentName, teacherName, start);
     // You can swap this out later for an actual edit popup
   });
+  document.getElementById("cancel-lesson-btn").addEventListener("click", () => {
+    warningPopup(lessonID);
+  });
 }
+function warningPopup(lessonID){
+  const popup = document.createElement("div");
+  popup.className = "warning-popup-overlay";
+  popup.id ="warning-popup-overlay"
 
+  popup.innerHTML=`
+    <div class="warning-popup">
+      <p>Are you sure you want to cancel this lesson?</p>
+      <div class="popup-buttons">
+        <button id="confirm-cancel-yes" class="danger-button">Yes, Cancel</button>
+        <button id="confirm-cancel-no" class="safe-button">No</button>
+      </div>
+    </div>
+  `;
+    document.body.appendChild(popup);
+document.getElementById("confirm-cancel-no").addEventListener("click", () => {
+    popup.remove();
+  });
+  document.getElementById("confirm-cancel-yes").addEventListener("click", () => {
+  // Prepare form data
+  const formData = new FormData();
+  formData.append("lesson_id", lessonID);
+
+  // Send POST request to /deletelesson
+  fetch("/delete_lesson", {
+    method: "POST",
+    body: formData
+  })
+  .then(response => {
+    if (response.ok) {
+      location.reload();
+    }
+  })
+  .catch(error => {
+    console.error("Error deleting lesson:", error);
+    alert("There was an error cancelling the lesson.");
+  });
+});
+
+}
 //Helper functions
 function shiftTime(utcTimeStr, offsetMinutes) {
   const [hours, minutes] = utcTimeStr.split(":").map(Number);
@@ -369,21 +413,23 @@ const studentName = studentSelect.options[studentSelect.selectedIndex].text;
     formData.set("end-time", fullEnd);
 
     fetch("/add_lesson", {
-      method: "POST",
-      body: formData,
-    })
-      .then(response => {
-        if (response.ok) {
-          console.log("Lesson added successfully!");
-          document.getElementById("slot-popup").style.display = "none";
-          makeLessonSlot(localStart,localEnd,studentName,teacherName);
-        } else {
-          console.error("Error submitting form");
-        }
-      })
-      .catch(error => {
-        console.error("Fetch error:", error);
-      });
+  method: "POST",
+  body: formData,
+})
+.then(response => {
+  if (!response.ok) throw new Error("Server error");
+  return response.json(); // Parse the JSON response
+})
+.then(data => {
+  console.log("Lesson added! ID:", data.lesson_id);
+  document.getElementById("slot-popup").style.display = "none";
+
+  makeLessonSlot(localStart, localEnd, studentName, teacherName, data.lesson_id);
+})
+.catch(error => {
+  console.error("Fetch error:", error);
+});
+
   });
 });
 window.addEventListener('DOMContentLoaded', async () => {

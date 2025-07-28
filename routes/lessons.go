@@ -25,4 +25,11 @@ func LessonRoutes(db *sql.DB) {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
+	http.HandleFunc("/delete_lesson", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			controllers.DeleteLesson(db, w, r)
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 }

@@ -34,14 +34,23 @@ func GetAllPosts(db *sql.DB) ([]Post, error) {
 
 	return posts, nil
 }
-func AddLesson(db *sql.DB, lesson Lesson) error {
-	_, err := db.Exec(`
+func AddLesson(db *sql.DB, lesson Lesson) (int64, error) {
+	result, err := db.Exec(`
 		INSERT INTO lessons (start_time, end_time, lesson_topic, student_id, teacher_id)
 		VALUES (?, ?, ?, ?, ?)`,
 		lesson.StartTime, lesson.EndTime, lesson.Topic, lesson.StudentID, lesson.TeacherID,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }
+
 func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, error) {
 	// Parse time
 	start, err := time.Parse(time.RFC3339, startStr)
@@ -55,6 +64,7 @@ func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, er
 
 	query := `
 		SELECT 
+			l.id AS lesson_id,
 			l.lesson_topic,
 			l.start_time,
 			l.end_time,
@@ -79,6 +89,7 @@ func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, er
 	for rows.Next() {
 		var lesson LessonInfo
 		err := rows.Scan(
+			&lesson.LessonID,
 			&lesson.LessonTopic,
 			&lesson.StartTime,
 			&lesson.EndTime,
@@ -94,4 +105,8 @@ func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, er
 	}
 
 	return lessons, nil
+}
+func DeleteLesson(db *sql.DB, lessonID int) error {
+	_, err := db.Exec(`DELETE FROM lessons WHERE id = ?`, lessonID)
+	return err
 }
