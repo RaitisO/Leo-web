@@ -108,6 +108,13 @@ schedule.forEach(block => {
     // Convert start/end to local time for dataset
     const localStart = shiftTime(block.start, offsetMinutes);
     const localEnd = shiftTime(block.end, offsetMinutes);
+    const baseMonday = getWeekDates(baseDate)[0];
+    const currentDate = new Date(baseMonday);
+    currentDate.setDate(currentDate.getDate() + day);
+    const dd = String(currentDate.getDate()).padStart(2, '0');
+    const mm = String(currentDate.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+    const yyyy = currentDate.getFullYear();
+    slot.dataset.date = `${dd}/${mm}/${yyyy}`;
 
     slot.dataset.day = day;
     slot.dataset.start = localStart;
@@ -134,7 +141,8 @@ document.querySelectorAll('.calendar-slot, .lesson-slot').forEach(slot => {
       // Open regular "create new lesson" popup
       const day = parseInt(slot.dataset.day);
       const hour = slot.dataset.start;
-      openSlotPopup(day, hour);
+      const date = slot.dataset.date;
+      openSlotPopup(day, hour, date);
     }
   });
 });
@@ -186,43 +194,92 @@ function makeLessonSlot(start, end, student, teacher,lesson_id) {
 }
 
 //Popup functions
-function openSlotPopup(day, time) {
+function openSlotPopup(day, time, date, mode = "create", lessonData = null) {
   const popup = document.getElementById("slot-popup");
+  const form = document.getElementById("lesson-form");
+  const title = popup.querySelector("h3");
+  const actionBtn = document.getElementById("create-lesson");
+  const rawDateInput = document.getElementById("raw-date");
 
-  const [hourStr, minuteStr] = time.split(":");
-  const hour = parseInt(hourStr);
-  const minutes = parseInt(minuteStr);
-
-  const baseMonday = getWeekDates(currentBaseDate)[0];
-  const selectedDate = new Date(baseMonday);
-  selectedDate.setDate(baseMonday.getDate() + day);
-  selectedDate.setHours(hour, minutes, 0, 0);
-
-  const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "short" });
-  const dayNum = selectedDate.getDate();
-  const month = selectedDate.toLocaleString("default", { month: "long" });
-  const year = selectedDate.getFullYear();
-
-  document.getElementById("popup-date").textContent = `${dayName} ${dayNum}. ${month} ${year}`;
-
-  const startTimeStr = selectedDate.toTimeString().slice(0, 5);
-  const endDate = new Date(selectedDate);
-  endDate.setHours(hour + 1, minutes, 0, 0);
-  const endTimeStr = endDate.toTimeString().slice(0, 5);
-
-  // Set both hidden inputs and visible display spans
-  document.getElementById("start-time").value = startTimeStr;
-  document.getElementById("end-time").value = endTimeStr;
-  document.getElementById("start-time-display").textContent = startTimeStr;
-  document.getElementById("end-time-display").textContent = endTimeStr;
-
-  // Reset custom time checkbox and toggle state
-  const customTimeToggle = document.getElementById("custom-time-toggle");
-  customTimeToggle.checked = false;
+  // Reset popup content
+  form.reset();
+  document.getElementById("custom-time-toggle").checked = false;
   toggleTimeFields(false);
+  actionBtn.className = ""; // reset button classes
+
+  if (mode === "edit" && lessonData) {
+    // 🟡 EDIT MODE
+    const selectedDate = new Date(lessonData.start);
+    const endDate = new Date(lessonData.end);
+
+    title.textContent = "Edit Lesson Info";
+    actionBtn.textContent = "Save Changes";
+    actionBtn.classList.add("save-changes");
+    actionBtn.dataset.lessonId = lessonData.lesson_id;
+    form.dataset.mode = "edit";
+
+    // 🕐 Prefill time
+    const startTimeStr = selectedDate.toTimeString().slice(0, 5);
+    const endTimeStr = endDate.toTimeString().slice(0, 5);
+    document.getElementById("start-time").value = startTimeStr;
+    document.getElementById("end-time").value = endTimeStr;
+    document.getElementById("start-time-display").textContent = startTimeStr;
+    document.getElementById("end-time-display").textContent = endTimeStr;
+    document.getElementById("custom-time-toggle").checked = true;
+    toggleTimeFields(true);
+
+    // 📅 Date input instead of label
+    const isoDate = selectedDate.toISOString().slice(0, 10); // yyyy-mm-dd
+    rawDateInput.outerHTML = `
+      <label>Date:
+        <input type="date" id="raw-date" name="raw-date" value="${isoDate}">
+      </label>
+    `;
+
+    // 👥 Prefill selects & topic
+    document.getElementById("teacher-select").value = lessonData.teacher_id;
+    document.getElementById("student-select").value = lessonData.student_id;
+    document.getElementById("lesson-topic").value = lessonData.topic || "";
+
+  } else {
+    // 🟢 CREATE MODE (default)
+    const [hourStr, minuteStr] = time.split(":");
+    const hour = parseInt(hourStr);
+    const minutes = parseInt(minuteStr);
+    const [dd, mm, yyyy] = date.split("/").map(Number);
+    const selectedDate = new Date(yyyy, mm - 1, dd, hour, minutes);
+    const endDate = new Date(selectedDate);
+    endDate.setHours(hour + 1, minutes, 0, 0);
+
+    const startTimeStr = selectedDate.toTimeString().slice(0, 5);
+    const endTimeStr = endDate.toTimeString().slice(0, 5);
+    document.getElementById("start-time").value = startTimeStr;
+    document.getElementById("end-time").value = endTimeStr;
+    document.getElementById("start-time-display").textContent = startTimeStr;
+    document.getElementById("end-time-display").textContent = endTimeStr;
+
+    title.textContent = "Create a Lesson Time";
+    actionBtn.textContent = "Create";
+    actionBtn.classList.add("create");
+    delete actionBtn.dataset.lessonId;
+    form.dataset.mode = "create";
+
+    // 📅 Pretty display instead of date input
+    const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "short" });
+    const dayNum = selectedDate.getDate();
+    const month = selectedDate.toLocaleString("default", { month: "long" });
+    const year = selectedDate.getFullYear();
+
+    rawDateInput.outerHTML = `
+      <input type="hidden" id="raw-date" name="raw-date" value="${date}">
+      <p id="popup-date">${dayName} ${dayNum}. ${month} ${year}</p>
+    `;
+  }
 
   popup.style.display = "flex";
 }
+
+
 function openLessonInfoPopup(slot) {
   // You should already store these attributes when creating lesson slots
   const studentName = slot.dataset.student_name;
@@ -230,7 +287,13 @@ function openLessonInfoPopup(slot) {
   const start = slot.dataset.start;
   const end = slot.dataset.end;
   const lessonID = slot.dataset.lesson_id
-
+  const lessonData={
+    lesson_id: lessonID,
+    start: start,
+    end: end,
+    teacher_id: teacherName,
+    student_id: studentName
+  }
   // Create popup container
   const popup = document.createElement("div");
   popup.className = "info-popup-overlay";
@@ -259,7 +322,7 @@ function openLessonInfoPopup(slot) {
   });
   // Placeholder for edit logic
  document.getElementById("edit-lesson-btn").addEventListener("click", () => {
-  editPopup(slot);
+    openSlotPopup(null, null, null, "edit", lessonData);
 });
 
   document.getElementById("cancel-lesson-btn").addEventListener("click", () => {
@@ -303,49 +366,7 @@ document.getElementById("confirm-cancel-no").addEventListener("click", () => {
 });
 
 }
-function editPopup(slot) {
-  // Close info popup first
-  const lessonID = slot.dataset.lesson_id;
-  const infoPopup = document.getElementById("popup-overlay");
-  if (infoPopup) infoPopup.remove();
 
-  // Open the form popup
-  const popup = document.getElementById("slot-popup");
-  popup.style.display = "flex";
-
-  // Change title
-  popup.querySelector("h3").textContent = "Edit Lesson";
-
-  // Change button text
-  const submitBtn = document.getElementById("create-lesson");
-  submitBtn.textContent = "Save Changes";
-
-  // OPTIONAL: style the button
-  submitBtn.classList.add("save-changes");
-  submitBtn.classList.remove("create");
-
-  // Store lesson ID somewhere (e.g., dataset)
-  submitBtn.dataset.lessonId = lessonID;
-
-  // Prefill data (you can pass this via `slot.dataset`)
-  // Example:
-  document.getElementById("teacher-select").value = slot.dataset.teacher_id;
-  document.getElementById("student-select").value = slot.dataset.student_id;
-  document.getElementById("lesson-topic").value = slot.dataset.topic || "";
-
-  // Set time inputs
-  document.getElementById("start-time").value = slot.dataset.start.slice(11, 16); // HH:MM
-  document.getElementById("end-time").value = slot.dataset.end.slice(11, 16);
-  document.getElementById("start-time-display").textContent = slot.dataset.start.slice(11, 16);
-  document.getElementById("end-time-display").textContent = slot.dataset.end.slice(11, 16);
-
-  // Ensure time fields are visible if needed
-  document.getElementById("custom-time-toggle").checked = true;
-  toggleTimeFields(true);
-
-  // Optional: attach a flag to the form for edit mode
-  document.getElementById("lesson-form").dataset.mode = "edit";
-}
 
 
 //Helper functions
@@ -423,29 +444,27 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", function (e) {
     e.preventDefault(); // Stop normal form submission
 
-    // Get the date string from the popup
-    const popupDateStr = document.getElementById('popup-date').textContent.trim(); // e.g. "03 July 2025"
-    const dateObj = new Date(popupDateStr);
-
-    const yyyy = dateObj.getFullYear();
-    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const dd = String(dateObj.getDate()).padStart(2, '0');
+    // ✅ Use stored raw dd/mm/yyyy format
+    const rawDate = document.getElementById("raw-date").value;
+    const [dd, mm, yyyy] = rawDate.split("/");
 
     // Get time inputs
     const startTime = document.getElementById("start-time").value; // "HH:MM"
     const endTime = document.getElementById("end-time").value;
 
-    // Build a Date object using local time
-const localStart = new Date(`${yyyy}-${mm}-${dd}T${startTime}`);
-const localEnd = new Date(`${yyyy}-${mm}-${dd}T${endTime}`);
+    // Build local datetime
+    const localStart = new Date(`${yyyy}-${mm}-${dd}T${startTime}`);
+    const localEnd = new Date(`${yyyy}-${mm}-${dd}T${endTime}`);
 
-// Convert to UTC string in ISO format without milliseconds and 'Z'
-const fullStart = localStart.toISOString().slice(0, 16); // "2025-07-23T06:00"
-const fullEnd = localEnd.toISOString().slice(0, 16);
-const teacherSelect = document.getElementById("teacher-select");
-const teacherName = teacherSelect.options[teacherSelect.selectedIndex].text;
-const studentSelect = document.getElementById("student-select");
-const studentName = studentSelect.options[studentSelect.selectedIndex].text;
+    // Convert to ISO (no milliseconds)
+    const fullStart = localStart.toISOString().slice(0, 16);
+    const fullEnd = localEnd.toISOString().slice(0, 16);
+
+    // Get selected names
+    const teacherSelect = document.getElementById("teacher-select");
+    const teacherName = teacherSelect.options[teacherSelect.selectedIndex].text;
+    const studentSelect = document.getElementById("student-select");
+    const studentName = studentSelect.options[studentSelect.selectedIndex].text;
 
     // Create FormData and append full datetime values
     const formData = new FormData(form);
@@ -453,25 +472,24 @@ const studentName = studentSelect.options[studentSelect.selectedIndex].text;
     formData.set("end-time", fullEnd);
 
     fetch("/add_lesson", {
-  method: "POST",
-  body: formData,
-})
-.then(response => {
-  if (!response.ok) throw new Error("Server error");
-  return response.json(); // Parse the JSON response
-})
-.then(data => {
-  console.log("Lesson added! ID:", data.lesson_id);
-  document.getElementById("slot-popup").style.display = "none";
-
-  makeLessonSlot(localStart, localEnd, studentName, teacherName, data.lesson_id);
-})
-.catch(error => {
-  console.error("Fetch error:", error);
-});
-
+      method: "POST",
+      body: formData,
+    })
+      .then(response => {
+        if (!response.ok) throw new Error("Server error");
+        return response.json();
+      })
+      .then(data => {
+        console.log("Lesson added! ID:", data.lesson_id);
+        document.getElementById("slot-popup").style.display = "none";
+        makeLessonSlot(localStart, localEnd, studentName, teacherName, data.lesson_id);
+      })
+      .catch(error => {
+        console.error("Fetch error:", error);
+      });
   });
 });
+
 window.addEventListener('DOMContentLoaded', async () => {
   const res = await fetch('/api/users');
   const data = await res.json();
