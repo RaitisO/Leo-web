@@ -139,10 +139,9 @@ document.querySelectorAll('.calendar-slot, .lesson-slot').forEach(slot => {
       openLessonInfoPopup(slot);
     } else {
       // Open regular "create new lesson" popup
-      const day = parseInt(slot.dataset.day);
       const hour = slot.dataset.start;
       const date = slot.dataset.date;
-      openSlotPopup(day, hour, date);
+      openSlotPopup(hour, date);
     }
   });
 });
@@ -194,12 +193,11 @@ function makeLessonSlot(start, end, student, teacher,lesson_id) {
 }
 
 //Popup functions
-function openSlotPopup(day, time, date, mode = "create", lessonData = null) {
+function openSlotPopup(time, date, mode = "create", lessonData = null) {
   const popup = document.getElementById("slot-popup");
   const form = document.getElementById("lesson-form");
   const title = popup.querySelector("h3");
   const actionBtn = document.getElementById("create-lesson");
-  const rawDateInput = document.getElementById("raw-date");
 
   // Reset popup content
   form.reset();
@@ -208,38 +206,40 @@ function openSlotPopup(day, time, date, mode = "create", lessonData = null) {
   actionBtn.className = ""; // reset button classes
 
   if (mode === "edit" && lessonData) {
-    // 🟡 EDIT MODE
-    const selectedDate = new Date(lessonData.start);
-    const endDate = new Date(lessonData.end);
+  // 🔧 Update title and button
+  title.textContent = "Edit Lesson Info";
+  actionBtn.textContent = "Save Changes";
+  actionBtn.classList.add("save-changes");
+  actionBtn.dataset.lessonId = lessonData.lesson_id;
+  form.dataset.mode = "edit";
 
-    title.textContent = "Edit Lesson Info";
-    actionBtn.textContent = "Save Changes";
-    actionBtn.classList.add("save-changes");
-    actionBtn.dataset.lessonId = lessonData.lesson_id;
-    form.dataset.mode = "edit";
+  // ⏱️ Prefill start/end time
+  const startTimeStr = time; // already in "HH:mm" format
+  const endTimeStr = lessonData.end;
+  document.getElementById("start-time").value = startTimeStr;
+  document.getElementById("end-time").value = endTimeStr;
+  document.getElementById("start-time-display").textContent = startTimeStr;
+  document.getElementById("end-time-display").textContent = endTimeStr;
 
-    // 🕐 Prefill time
-    const startTimeStr = selectedDate.toTimeString().slice(0, 5);
-    const endTimeStr = endDate.toTimeString().slice(0, 5);
-    document.getElementById("start-time").value = startTimeStr;
-    document.getElementById("end-time").value = endTimeStr;
-    document.getElementById("start-time-display").textContent = startTimeStr;
-    document.getElementById("end-time-display").textContent = endTimeStr;
-    document.getElementById("custom-time-toggle").checked = true;
-    toggleTimeFields(true);
+  // 🟨 Enable custom time toggle
+  document.getElementById("custom-time-toggle").checked = true;
+  toggleTimeFields(true);
 
-    // 📅 Date input instead of label
-    const isoDate = selectedDate.toISOString().slice(0, 10); // yyyy-mm-dd
-    rawDateInput.outerHTML = `
-      <label>Date:
-        <input type="date" id="raw-date" name="raw-date" value="${isoDate}">
-      </label>
-    `;
+  // 📅 Replace raw-date label with a date input
+  const [dd, mm, yyyy] = date.split("/").map(Number);
+  const isoDateStr = new Date(yyyy, mm - 1, dd).toISOString().split("T")[0]; // "yyyy-mm-dd"
+  document.getElementById("popup-date").innerHTML = `
+  <label>Date:
+    <input type="date" id="raw-date" name="raw-date" value="${isoDateStr}">
+  </label>
+`;
 
-    // 👥 Prefill selects & topic
-    document.getElementById("teacher-select").value = lessonData.teacher_id;
-    document.getElementById("student-select").value = lessonData.student_id;
-    document.getElementById("lesson-topic").value = lessonData.topic || "";
+
+  // 👤 Pre-select teacher/student
+  document.getElementById("teacher-select").value = lessonData.teacher_id;
+  document.getElementById("student-select").value = lessonData.student_id;
+
+
 
   } else {
     // 🟢 CREATE MODE (default)
@@ -270,10 +270,11 @@ function openSlotPopup(day, time, date, mode = "create", lessonData = null) {
     const month = selectedDate.toLocaleString("default", { month: "long" });
     const year = selectedDate.getFullYear();
 
-    rawDateInput.outerHTML = `
-      <input type="hidden" id="raw-date" name="raw-date" value="${date}">
-      <p id="popup-date">${dayName} ${dayNum}. ${month} ${year}</p>
-    `;
+    document.getElementById("popup-date").innerHTML = `
+  <input type="hidden" id="raw-date" name="raw-date" value="${date}">
+  ${dayName} ${dayNum}. ${month} ${year}
+`;
+
   }
 
   popup.style.display = "flex";
@@ -287,12 +288,12 @@ function openLessonInfoPopup(slot) {
   const start = slot.dataset.start;
   const end = slot.dataset.end;
   const lessonID = slot.dataset.lesson_id
+  const date = slot.dataset.date
   const lessonData={
     lesson_id: lessonID,
-    start: start,
     end: end,
-    teacher_id: teacherName,
-    student_id: studentName
+    teacher_name: teacherName,
+    student_name: studentName
   }
   // Create popup container
   const popup = document.createElement("div");
@@ -322,7 +323,8 @@ function openLessonInfoPopup(slot) {
   });
   // Placeholder for edit logic
  document.getElementById("edit-lesson-btn").addEventListener("click", () => {
-    openSlotPopup(null, null, null, "edit", lessonData);
+    openSlotPopup(start, date, "edit", lessonData);
+    popup.remove();
 });
 
   document.getElementById("cancel-lesson-btn").addEventListener("click", () => {
@@ -445,7 +447,8 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault(); // Stop normal form submission
 
     // ✅ Use stored raw dd/mm/yyyy format
-    const rawDate = document.getElementById("raw-date").value;
+    const rawDate = document.getElementById("popup-date").value;
+    console.log(rawDate)
     const [dd, mm, yyyy] = rawDate.split("/");
 
     // Get time inputs
@@ -462,6 +465,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Get selected names
     const teacherSelect = document.getElementById("teacher-select");
+    console.log(teacherSelect.selectedIndex)
     const teacherName = teacherSelect.options[teacherSelect.selectedIndex].text;
     const studentSelect = document.getElementById("student-select");
     const studentName = studentSelect.options[studentSelect.selectedIndex].text;
