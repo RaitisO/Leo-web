@@ -119,3 +119,48 @@ func DeleteLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+func EditLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(10 << 20) // Allow up to 10MB for safety
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		return
+	}
+
+	// Get lesson ID from query param
+	lessonIDStr := r.URL.Query().Get("id")
+	if lessonIDStr == "" {
+		http.Error(w, "Lesson ID is required", http.StatusBadRequest)
+		return
+	}
+
+	lessonID, err := strconv.Atoi(lessonIDStr)
+	if err != nil {
+		http.Error(w, "Invalid lesson ID", http.StatusBadRequest)
+		return
+	}
+
+	// Collect form data
+	rawDate := r.FormValue("raw-date")
+	startTime := r.FormValue("start-time")
+	endTime := r.FormValue("end-time")
+	teacherID := r.FormValue("teacher-id")
+	studentID := r.FormValue("student-id")
+	lessonTopic := r.FormValue("lesson-topic")
+
+	// Basic validation
+	if rawDate == "" || startTime == "" || endTime == "" || teacherID == "" || studentID == "" {
+		http.Error(w, "Missing required fields", http.StatusBadRequest)
+		return
+	}
+
+	// Call the model function to update the lesson
+	err = models.UpdateLesson(db, lessonID, rawDate, startTime, endTime, teacherID, studentID, lessonTopic)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to update lesson: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Send success response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Lesson updated successfully"))
+}

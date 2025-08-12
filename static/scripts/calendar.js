@@ -53,7 +53,7 @@ const monday = week[0];
     })
     .then(data => {
       data.forEach(lesson=>{
-        makeLessonSlot(lesson.start_time,lesson.end_time,lesson.student_name,lesson.teacher_name,lesson.lesson_id);
+        makeLessonSlot(lesson.start_time,lesson.end_time,lesson.student_name,lesson.teacher_name,lesson.lesson_id,lesson.student_id,lesson.teacher_id);
       });
     })
     .catch(error => {
@@ -151,7 +151,7 @@ document.querySelectorAll('.calendar-slot, .lesson-slot').forEach(slot => {
 
   return week[0]; // return Monday of the week
 }
-function makeLessonSlot(start, end, student, teacher,lesson_id) {
+function makeLessonSlot(start, end, student, teacher,lesson_id,student_id,teacher_id) {
   const startDate = new Date(start);
   const endDate = new Date(end);
   const day = startDate.getDay() === 0 ? 6 : startDate.getDay() - 1;
@@ -185,6 +185,8 @@ function makeLessonSlot(start, end, student, teacher,lesson_id) {
     slot.appendChild(teacherNameLabel);
     slot.dataset.student_name = student;
     slot.dataset.teacher_name = teacher;
+    slot.dataset.student_id = student_id;
+    slot.dataset.teacher_id = teacher_id;
     slot.dataset.lesson_id=lesson_id;
 
   } else {
@@ -236,13 +238,15 @@ function openSlotPopup(time, date, mode = "create", lessonData = null) {
 
 
   // 👤 Pre-select teacher/student
-  document.getElementById("teacher-select").value = lessonData.teacher_id;
-  document.getElementById("student-select").value = lessonData.student_id;
+document.querySelector("#teacher-select").tomselect.setValue(lessonData.teacher_id);
+document.querySelector("#student-select").tomselect.setValue(lessonData.student_id);
 
 
 
   } else {
     // 🟢 CREATE MODE (default)
+    document.getElementById('teacher-select').tomselect.clear();
+    document.getElementById('student-select').tomselect.clear();
     const [hourStr, minuteStr] = time.split(":");
     const hour = parseInt(hourStr);
     const minutes = parseInt(minuteStr);
@@ -281,10 +285,13 @@ function openSlotPopup(time, date, mode = "create", lessonData = null) {
 }
 
 
+
 function openLessonInfoPopup(slot) {
   // You should already store these attributes when creating lesson slots
   const studentName = slot.dataset.student_name;
   const teacherName = slot.dataset.teacher_name;
+  const student_id = slot.dataset.student_id;
+  const teacher_id = slot.dataset.teacher_id;
   const start = slot.dataset.start;
   const end = slot.dataset.end;
   const lessonID = slot.dataset.lesson_id
@@ -292,8 +299,8 @@ function openLessonInfoPopup(slot) {
   const lessonData={
     lesson_id: lessonID,
     end: end,
-    teacher_name: teacherName,
-    student_name: studentName
+    teacher_id: teacher_id,
+    student_id: student_id
   }
   // Create popup container
   const popup = document.createElement("div");
@@ -442,15 +449,42 @@ document.getElementById("custom-time-toggle").addEventListener("change", functio
 });
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("lesson-form");
+  const actionBtn = document.getElementById("create-lesson");
 
   form.addEventListener("submit", function (e) {
     e.preventDefault(); // Stop normal form submission
 
     // ✅ Use stored raw dd/mm/yyyy format
-    const rawDate = document.getElementById("popup-date").value;
-    console.log(rawDate)
-    const [dd, mm, yyyy] = rawDate.split("/");
+     const rawDateElem = document.getElementById("raw-date");
+    if (!rawDateElem) {
+      console.error("raw-date input missing");
+      return;
+    }
+    const rawDate = rawDateElem.value.trim();
+    if (!rawDate) {
+      console.error("raw-date empty");
+      return;
+    }
 
+    // --- Parse raw date: accept dd/mm/yyyy or yyyy-mm-dd ---
+    let dd, mm, yyyy;
+    if (rawDate.includes("/")) {
+      // dd/mm/yyyy
+      [dd, mm, yyyy] = rawDate.split("/").map(s => s.padStart(2, "0"));
+    } else if (rawDate.includes("-")) {
+      // yyyy-mm-dd
+      [yyyy, mm, dd] = rawDate.split("-").map(s => s.padStart(2, "0"));
+    } else {
+      // Try Date.parse fallback
+      const d = new Date(rawDate);
+      if (isNaN(d)) {
+        console.error("Cannot parse raw date:", rawDate);
+        return;
+      }
+      dd = String(d.getDate()).padStart(2, "0");
+      mm = String(d.getMonth() + 1).padStart(2, "0");
+      yyyy = d.getFullYear();
+    }
     // Get time inputs
     const startTime = document.getElementById("start-time").value; // "HH:MM"
     const endTime = document.getElementById("end-time").value;
@@ -463,20 +497,32 @@ document.addEventListener("DOMContentLoaded", function () {
     const fullStart = localStart.toISOString().slice(0, 16);
     const fullEnd = localEnd.toISOString().slice(0, 16);
 
-    // Get selected names
-    const teacherSelect = document.getElementById("teacher-select");
-    console.log(teacherSelect.selectedIndex)
-    const teacherName = teacherSelect.options[teacherSelect.selectedIndex].text;
-    const studentSelect = document.getElementById("student-select");
-    const studentName = studentSelect.options[studentSelect.selectedIndex].text;
+    // ✅ Get selected IDs & names from Tom Select
+    const teacherID = document.querySelector("#teacher-select").tomselect.getValue();
+    const teacherName = document.querySelector("#teacher-select").tomselect.getItem(teacherID)?.textContent || "";
+    const studentID = document.querySelector("#student-select").tomselect.getValue();
+    const studentName = document.querySelector("#student-select").tomselect.getItem(studentID)?.textContent || "";
 
-    // Create FormData and append full datetime values
+    // Create FormData and append full datetime + IDs
     const formData = new FormData(form);
     formData.set("start-time", fullStart);
     formData.set("end-time", fullEnd);
+    formData.set("teacher_id", teacherID);
+    formData.set("student_id", studentID);
 
-    fetch("/add_lesson", {
-      method: "POST",
+    // Decide route based on mode
+    let url, method;
+    if (actionBtn.classList.contains("save-changes")) {
+          console.log("lesson id: ",actionBtn.dataset.lessonId)
+      url = `/edit_lesson?id=${actionBtn.dataset.lessonId}`;
+      method = "POST";
+    } else {
+      url = "/add_lesson";
+      method = "POST";
+    }
+
+    fetch(url, {
+      method: method,
       body: formData,
     })
       .then(response => {
@@ -484,15 +530,21 @@ document.addEventListener("DOMContentLoaded", function () {
         return response.json();
       })
       .then(data => {
-        console.log("Lesson added! ID:", data.lesson_id);
+        if (actionBtn.classList.contains("save-changes")) {
+          console.log("Lesson updated:", data);
+          // TODO: Update existing lesson in UI instead of making a new slot
+        } else {
+          console.log("Lesson added! ID:", data.lesson_id);
+          makeLessonSlot(localStart, localEnd, studentName, teacherName, data.lesson_id, studentID, teacherID);
+        }
         document.getElementById("slot-popup").style.display = "none";
-        makeLessonSlot(localStart, localEnd, studentName, teacherName, data.lesson_id);
       })
       .catch(error => {
         console.error("Fetch error:", error);
       });
   });
 });
+
 
 window.addEventListener('DOMContentLoaded', async () => {
   const res = await fetch('/api/users');

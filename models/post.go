@@ -110,3 +110,12 @@ func DeleteLesson(db *sql.DB, lessonID int) error {
 	_, err := db.Exec(`DELETE FROM lessons WHERE id = ?`, lessonID)
 	return err
 }
+func UpdateLesson(db *sql.DB, lessonID int, rawDate, startTime, endTime, teacherID, studentID, topic string) error {
+	query := `
+		UPDATE lessons
+		SET date = ?, start_time = ?, end_time = ?, teacher_id = ?, student_id = ?, topic = ?
+		WHERE id = ?
+	`
+	_, err := db.Exec(query, rawDate, startTime, endTime, teacherID, studentID, topic, lessonID)
+	return err
+}
