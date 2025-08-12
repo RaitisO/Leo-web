@@ -209,6 +209,7 @@ function openSlotPopup(time, date, mode = "create", lessonData = null) {
 
   if (mode === "edit" && lessonData) {
   // 🔧 Update title and button
+   document.getElementById("recurring-container").style.display = "none";
   title.textContent = "Edit Lesson Info";
   actionBtn.textContent = "Save Changes";
   actionBtn.classList.add("save-changes");
@@ -229,7 +230,7 @@ function openSlotPopup(time, date, mode = "create", lessonData = null) {
 
   // 📅 Replace raw-date label with a date input
   const [dd, mm, yyyy] = date.split("/").map(Number);
-  const isoDateStr = new Date(yyyy, mm - 1, dd).toISOString().split("T")[0]; // "yyyy-mm-dd"
+  const isoDateStr = new Date(yyyy, mm - 1, dd+1).toISOString().split("T")[0]; // "yyyy-mm-dd"
   document.getElementById("popup-date").innerHTML = `
   <label>Date:
     <input type="date" id="raw-date" name="raw-date" value="${isoDateStr}">
@@ -245,6 +246,7 @@ document.querySelector("#student-select").tomselect.setValue(lessonData.student_
 
   } else {
     // 🟢 CREATE MODE (default)
+    document.getElementById("recurring-container").style.display = "block";
     document.getElementById('teacher-select').tomselect.clear();
     document.getElementById('student-select').tomselect.clear();
     const [hourStr, minuteStr] = time.split(":");
@@ -488,7 +490,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Get time inputs
     const startTime = document.getElementById("start-time").value; // "HH:MM"
     const endTime = document.getElementById("end-time").value;
-
+  
     // Build local datetime
     const localStart = new Date(`${yyyy}-${mm}-${dd}T${startTime}`);
     const localEnd = new Date(`${yyyy}-${mm}-${dd}T${endTime}`);
@@ -502,13 +504,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const teacherName = document.querySelector("#teacher-select").tomselect.getItem(teacherID)?.textContent || "";
     const studentID = document.querySelector("#student-select").tomselect.getValue();
     const studentName = document.querySelector("#student-select").tomselect.getItem(studentID)?.textContent || "";
-
+ 
     // Create FormData and append full datetime + IDs
     const formData = new FormData(form);
     formData.set("start-time", fullStart);
     formData.set("end-time", fullEnd);
     formData.set("teacher_id", teacherID);
     formData.set("student_id", studentID);
+ if (actionBtn.classList.contains("create")) {
+    const isRecurring = document.getElementById("recurring-checkbox").checked;
+    formData.set("recurring", isRecurring ? "true" : "false");
+  }
 
     // Decide route based on mode
     let url, method;
@@ -531,10 +537,8 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .then(data => {
         if (actionBtn.classList.contains("save-changes")) {
-          console.log("Lesson updated:", data);
-          // TODO: Update existing lesson in UI instead of making a new slot
+          location.reload();
         } else {
-          console.log("Lesson added! ID:", data.lesson_id);
           makeLessonSlot(localStart, localEnd, studentName, teacherName, data.lesson_id, studentID, teacherID);
         }
         document.getElementById("slot-popup").style.display = "none";

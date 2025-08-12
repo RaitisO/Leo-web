@@ -384,3 +384,52 @@
 .safe-button:hover {
   background-color: #388e3c;
 }
+/* Style for checkboxes container */
+#recurring-container {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  font-family: sans-serif;
+}
+
+/* Style for the checkbox itself */
+#custom-time-toggle,
+#recurring-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #6C0F5F; /* matches your purple button */
+  margin: 0;
+}
+
+/* Label for checkboxes - clickable and nicely spaced */
+#recurring-container label,
+label[for="custom-time-toggle"] {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+}
+
+/* Style for the date input to match other inputs */
+#raw-date {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  margin-top: 4px;
+  color: #333;
+  outline-offset: 2px;
+  transition: border-color 0.2s ease;
+}
+
+#raw-date:focus {
+  border-color: #6C0F5F;
+  outline: none;
+  box-shadow: 0 0 5px #6C0F5FAA;
+}

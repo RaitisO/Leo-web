@@ -45,6 +45,38 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	recurring := r.FormValue("recurring") == "true"
+
+	if recurring {
+		// Decide period end date
+		var endPeriod time.Time
+		year := start.Year()
+		if start.Month() >= time.June && start.Month() <= time.August {
+			// Summer: until Aug 31
+			endPeriod = time.Date(year, time.August, 31, end.Hour(), end.Minute(), 0, 0, start.Location())
+		} else {
+			// School period: until May 31 next year if in Sep–Dec, otherwise same year
+			if start.Month() >= time.September {
+				endPeriod = time.Date(year+1, time.May, 31, end.Hour(), end.Minute(), 0, 0, start.Location())
+			} else {
+				endPeriod = time.Date(year, time.May, 31, end.Hour(), end.Minute(), 0, 0, start.Location())
+			}
+		}
+
+		// Call recurring function
+		err = AddRecurringLesson(db, start, end, topic, studentID, teacherID, endPeriod)
+		if err != nil {
+			fmt.Println("DB error (recurring):", err)
+			http.Error(w, "Failed to save recurring lessons", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "recurring lessons added"})
+		return
+	}
+
+	// Single lesson
 	lesson := models.Lesson{
 		StartTime: start,
 		EndTime:   end,
@@ -62,6 +94,31 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]int64{"lesson_id": id})
 }
+func AddRecurringLesson(db *sql.DB, start, end time.Time, topic string, studentID, teacherID int, endPeriod time.Time) error {
+	currentStart := start
+	currentEnd := end
+
+	for !currentStart.After(endPeriod) {
+		lesson := models.Lesson{
+			StartTime: currentStart,
+			EndTime:   currentEnd,
+			Topic:     topic,
+			StudentID: studentID,
+			TeacherID: teacherID,
+		}
+		_, err := models.AddLesson(db, lesson)
+		if err != nil {
+			return err
+		}
+
+		// Add 1 week
+		currentStart = currentStart.AddDate(0, 0, 7)
+		currentEnd = currentEnd.AddDate(0, 0, 7)
+	}
+
+	return nil
+}
+
 func GetLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	startStr := r.URL.Query().Get("start")
 	endStr := r.URL.Query().Get("end")
@@ -140,27 +197,30 @@ func EditLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Collect form data
-	rawDate := r.FormValue("raw-date")
 	startTime := r.FormValue("start-time")
 	endTime := r.FormValue("end-time")
 	teacherID := r.FormValue("teacher-id")
 	studentID := r.FormValue("student-id")
 	lessonTopic := r.FormValue("lesson-topic")
-
+	fmt.Println(startTime)
 	// Basic validation
-	if rawDate == "" || startTime == "" || endTime == "" || teacherID == "" || studentID == "" {
+	if startTime == "" || endTime == "" || teacherID == "" || studentID == "" {
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
 
 	// Call the model function to update the lesson
-	err = models.UpdateLesson(db, lessonID, rawDate, startTime, endTime, teacherID, studentID, lessonTopic)
+	err = models.UpdateLesson(db, lessonID, startTime, endTime, teacherID, studentID, lessonTopic)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to update lesson: %v", err), http.StatusInternalServerError)
 		return
 	}
 
 	// Send success response
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Lesson updated successfully"))
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "success",
+		"message": "Lesson updated successfully",
+	})
+
 }
