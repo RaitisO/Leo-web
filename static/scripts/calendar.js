@@ -414,17 +414,21 @@ function toggleTimeFields(showInputs) {
   const endTimeInput = document.getElementById("end-time");
   const startDisplay = document.getElementById("start-time-display");
   const endDisplay = document.getElementById("end-time-display");
+  const timeDropdown =  document.getElementById("preset-time-container");
 
   if (showInputs) {
     startTimeInput.style.display = "inline-block";
     endTimeInput.style.display = "inline-block";
     startDisplay.style.display = "none";
     endDisplay.style.display = "none";
+    timeDropdown.style.display= "none";
   } else {
     startTimeInput.style.display = "none";
     endTimeInput.style.display = "none";
     startDisplay.style.display = "inline-block";
     endDisplay.style.display = "inline-block";
+    timeDropdown.style.display= "inline-block";
+
   }
 }
 

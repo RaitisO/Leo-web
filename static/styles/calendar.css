@@ -433,3 +433,17 @@ label[for="custom-time-toggle"] {
   outline: none;
   box-shadow: 0 0 5px #6C0F5FAA;
 }
+#preset-time-container {
+  margin-top: 10px;
+}
+
+#preset-time {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: sans-serif;
+  color: #333;
+  background: #fff;
+}
