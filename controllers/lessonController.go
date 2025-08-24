@@ -19,7 +19,6 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
 	startStr := r.FormValue("start-time")
 	endStr := r.FormValue("end-time")
-	topic := r.FormValue("lesson-topic")
 
 	start, err := time.Parse("2006-01-02T15:04", startStr)
 	if err != nil {
@@ -44,6 +43,11 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid teacher ID", http.StatusBadRequest)
 		return
 	}
+	subjectID, err := strconv.Atoi(r.FormValue("subject-id"))
+	if err != nil {
+		http.Error(w, "Invalid subject ID", http.StatusBadRequest)
+		return
+	}
 
 	recurring := r.FormValue("recurring") == "true"
 
@@ -64,7 +68,7 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Call recurring function
-		err = AddRecurringLesson(db, start, end, topic, studentID, teacherID, endPeriod)
+		err = AddRecurringLesson(db, start, end, subjectID, studentID, teacherID, endPeriod)
 		if err != nil {
 			fmt.Println("DB error (recurring):", err)
 			http.Error(w, "Failed to save recurring lessons", http.StatusInternalServerError)
@@ -80,7 +84,7 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	lesson := models.Lesson{
 		StartTime: start,
 		EndTime:   end,
-		Topic:     topic,
+		SubjectID: subjectID,
 		StudentID: studentID,
 		TeacherID: teacherID,
 	}
@@ -94,7 +98,7 @@ func AddLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]int64{"lesson_id": id})
 }
-func AddRecurringLesson(db *sql.DB, start, end time.Time, topic string, studentID, teacherID int, endPeriod time.Time) error {
+func AddRecurringLesson(db *sql.DB, start, end time.Time, subjectID int, studentID, teacherID int, endPeriod time.Time) error {
 	currentStart := start
 	currentEnd := end
 
@@ -102,7 +106,7 @@ func AddRecurringLesson(db *sql.DB, start, end time.Time, topic string, studentI
 		lesson := models.Lesson{
 			StartTime: currentStart,
 			EndTime:   currentEnd,
-			Topic:     topic,
+			SubjectID: subjectID,
 			StudentID: studentID,
 			TeacherID: teacherID,
 		}

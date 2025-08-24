@@ -206,6 +206,32 @@ function openSlotPopup(time, date, mode = "create", lessonData = null) {
   document.getElementById("custom-time-toggle").checked = false;
   toggleTimeFields(false);
   actionBtn.className = ""; // reset button classes
+  const select = document.getElementById("preset-time");
+
+  schedule.forEach((slot) => {
+    if (slot.type === "lesson") {
+      const localStart = shiftTime(slot.start,offsetMinutes);
+      const localEnd = shiftTime(slot.end,offsetMinutes);
+
+      const opt = document.createElement("option");
+      opt.value = `${localStart}-${localEnd}`; // keep original UTC values
+      opt.textContent = `${localStart} - ${localEnd}`;
+      if(localStart===time){
+        opt.setAttribute("selected",true);
+      }
+      select.appendChild(opt);
+    }
+  });
+  document.getElementById("preset-time").addEventListener("change",function(){
+    const val  = this.value;
+    if(!val) return;
+    const [start,end] = val.split("-");
+
+    document.getElementById("start-time").value = `${start}`;
+    document.getElementById("end-time").value = `${end}`;
+    document.getElementById("start-time-display").innerText = start;
+    document.getElementById("end-time-display").innerText = end;
+  });
 
   if (mode === "edit" && lessonData) {
   // 🔧 Update title and button
@@ -249,6 +275,8 @@ document.querySelector("#student-select").tomselect.setValue(lessonData.student_
     document.getElementById("recurring-container").style.display = "block";
     document.getElementById('teacher-select').tomselect.clear();
     document.getElementById('student-select').tomselect.clear();
+    document.getElementById('subject-select').tomselect.clear();
+
     const [hourStr, minuteStr] = time.split(":");
     const hour = parseInt(hourStr);
     const minutes = parseInt(minuteStr);
@@ -461,7 +489,7 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault(); // Stop normal form submission
 
     // ✅ Use stored raw dd/mm/yyyy format
-     const rawDateElem = document.getElementById("raw-date");
+    const rawDateElem = document.getElementById("raw-date");
     if (!rawDateElem) {
       console.error("raw-date input missing");
       return;
@@ -475,13 +503,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- Parse raw date: accept dd/mm/yyyy or yyyy-mm-dd ---
     let dd, mm, yyyy;
     if (rawDate.includes("/")) {
-      // dd/mm/yyyy
-      [dd, mm, yyyy] = rawDate.split("/").map(s => s.padStart(2, "0"));
+      [dd, mm, yyyy] = rawDate.split("/").map(s => s.padStart(2, "0")); // dd/mm/yyyy
     } else if (rawDate.includes("-")) {
-      // yyyy-mm-dd
-      [yyyy, mm, dd] = rawDate.split("-").map(s => s.padStart(2, "0"));
+      [yyyy, mm, dd] = rawDate.split("-").map(s => s.padStart(2, "0")); // yyyy-mm-dd
     } else {
-      // Try Date.parse fallback
       const d = new Date(rawDate);
       if (isNaN(d)) {
         console.error("Cannot parse raw date:", rawDate);
@@ -491,10 +516,11 @@ document.addEventListener("DOMContentLoaded", function () {
       mm = String(d.getMonth() + 1).padStart(2, "0");
       yyyy = d.getFullYear();
     }
+
     // Get time inputs
-    const startTime = document.getElementById("start-time").value; // "HH:MM"
+    const startTime = document.getElementById("start-time").value;
     const endTime = document.getElementById("end-time").value;
-  
+
     // Build local datetime
     const localStart = new Date(`${yyyy}-${mm}-${dd}T${startTime}`);
     const localEnd = new Date(`${yyyy}-${mm}-${dd}T${endTime}`);
@@ -508,22 +534,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const teacherName = document.querySelector("#teacher-select").tomselect.getItem(teacherID)?.textContent || "";
     const studentID = document.querySelector("#student-select").tomselect.getValue();
     const studentName = document.querySelector("#student-select").tomselect.getItem(studentID)?.textContent || "";
- 
+    const subjectID = document.querySelector("#subject-select").tomselect.getValue(); // ✅ new
+    const subjectName = document.querySelector("#subject-select").tomselect.getItem(subjectID)?.textContent || ""; // optional
+
     // Create FormData and append full datetime + IDs
     const formData = new FormData(form);
     formData.set("start-time", fullStart);
     formData.set("end-time", fullEnd);
     formData.set("teacher_id", teacherID);
     formData.set("student_id", studentID);
- if (actionBtn.classList.contains("create")) {
-    const isRecurring = document.getElementById("recurring-checkbox").checked;
-    formData.set("recurring", isRecurring ? "true" : "false");
-  }
+    formData.set("subject_id", subjectID); // ✅ add subject
+
+    if (actionBtn.classList.contains("create")) {
+      const isRecurring = document.getElementById("recurring-checkbox").checked;
+      formData.set("recurring", isRecurring ? "true" : "false");
+    }
 
     // Decide route based on mode
     let url, method;
     if (actionBtn.classList.contains("save-changes")) {
-          console.log("lesson id: ",actionBtn.dataset.lessonId)
+      console.log("lesson id: ", actionBtn.dataset.lessonId);
       url = `/edit_lesson?id=${actionBtn.dataset.lessonId}`;
       method = "POST";
     } else {
@@ -544,6 +574,7 @@ document.addEventListener("DOMContentLoaded", function () {
           location.reload();
         } else {
           makeLessonSlot(localStart, localEnd, studentName, teacherName, data.lesson_id, studentID, teacherID);
+          // ✅ you can also pass subjectName into makeLessonSlot if you want to display it
         }
         document.getElementById("slot-popup").style.display = "none";
       })
@@ -554,13 +585,16 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+
 window.addEventListener('DOMContentLoaded', async () => {
   const res = await fetch('/api/users');
   const data = await res.json();
 
   const teacherSelect = document.getElementById('teacher-select');
   const studentSelect = document.getElementById('student-select');
+  const subjectSelect = document.getElementById('subject-select'); // ✅
 
+  // Teachers
   data.teachers.forEach(t => {
     const option = document.createElement('option');
     option.value = t.id;
@@ -568,6 +602,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     teacherSelect.appendChild(option);
   });
 
+  // Students
   data.students.forEach(s => {
     const option = document.createElement('option');
     option.value = s.id;
@@ -575,9 +610,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     studentSelect.appendChild(option);
   });
 
+  // ✅ Subjects
+  data.subjects.forEach(sub => {
+    const option = document.createElement('option');
+    option.value = sub.id;
+    option.textContent = sub.name;
+    subjectSelect.appendChild(option);
+  });
+
+  // Initialize TomSelects
   new TomSelect('#teacher-select', { create: false, sortField: 'text' });
   new TomSelect('#student-select', { create: false, sortField: 'text' });
+  new TomSelect('#subject-select', { create: false, sortField: 'text' }); // ✅
 });
+
 
 
 

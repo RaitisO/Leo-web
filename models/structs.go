@@ -25,7 +25,7 @@ type PageData struct {
 type Lesson struct {
 	StartTime time.Time
 	EndTime   time.Time
-	Topic     string
+	SubjectID int
 	StudentID int
 	TeacherID int
 }

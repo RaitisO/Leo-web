@@ -36,9 +36,9 @@ func GetAllPosts(db *sql.DB) ([]Post, error) {
 }
 func AddLesson(db *sql.DB, lesson Lesson) (int64, error) {
 	result, err := db.Exec(`
-		INSERT INTO lessons (start_time, end_time, lesson_topic, student_id, teacher_id)
+		INSERT INTO lessons (start_time, end_time, subject_id, student_id, teacher_id)
 		VALUES (?, ?, ?, ?, ?)`,
-		lesson.StartTime, lesson.EndTime, lesson.Topic, lesson.StudentID, lesson.TeacherID,
+		lesson.StartTime, lesson.EndTime, lesson.SubjectID, lesson.StudentID, lesson.TeacherID,
 	)
 	if err != nil {
 		return 0, err
