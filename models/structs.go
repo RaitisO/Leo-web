@@ -31,7 +31,7 @@ type Lesson struct {
 }
 type LessonInfo struct {
 	LessonID    int       `json:"lesson_id"`
-	LessonTopic string    `json:"lesson_topic"`
+	SubjectID   int       `json:"subject_id"`
 	StartTime   time.Time `json:"start_time"`
 	EndTime     time.Time `json:"end_time"`
 	StudentID   int       `json:"student_id"`

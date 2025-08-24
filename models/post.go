@@ -65,7 +65,7 @@ func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, er
 	query := `
 		SELECT 
 			l.id AS lesson_id,
-			l.lesson_topic,
+			l.subject_id,
 			l.start_time,
 			l.end_time,
 			s.id AS student_id,
@@ -90,7 +90,7 @@ func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, er
 		var lesson LessonInfo
 		err := rows.Scan(
 			&lesson.LessonID,
-			&lesson.LessonTopic,
+			&lesson.SubjectID,
 			&lesson.StartTime,
 			&lesson.EndTime,
 			&lesson.StudentID,
@@ -101,6 +101,7 @@ func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, er
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
+		fmt.Println(lesson.SubjectID)
 		lessons = append(lessons, lesson)
 	}
 

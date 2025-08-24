@@ -53,7 +53,7 @@ const monday = week[0];
     })
     .then(data => {
       data.forEach(lesson=>{
-        makeLessonSlot(lesson.start_time,lesson.end_time,lesson.student_name,lesson.teacher_name,lesson.lesson_id,lesson.student_id,lesson.teacher_id);
+        makeLessonSlot(lesson.start_time,lesson.end_time,lesson.student_name,lesson.teacher_name,lesson.lesson_id,lesson.student_id,lesson.teacher_id,lesson.subj);
       });
     })
     .catch(error => {
@@ -151,7 +151,7 @@ document.querySelectorAll('.calendar-slot, .lesson-slot').forEach(slot => {
 
   return week[0]; // return Monday of the week
 }
-function makeLessonSlot(start, end, student, teacher,lesson_id,student_id,teacher_id) {
+function makeLessonSlot(start, end, student, teacher,lesson_id,student_id,teacher_id, subject_id ) {
   const startDate = new Date(start);
   const endDate = new Date(end);
   const day = startDate.getDay() === 0 ? 6 : startDate.getDay() - 1;
@@ -188,6 +188,7 @@ function makeLessonSlot(start, end, student, teacher,lesson_id,student_id,teache
     slot.dataset.student_id = student_id;
     slot.dataset.teacher_id = teacher_id;
     slot.dataset.lesson_id=lesson_id;
+    slot.dataset.subject_id=subject_id;
 
   } else {
     console.warn("Slot not found for", day, timeKey);
@@ -535,7 +536,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const studentID = document.querySelector("#student-select").tomselect.getValue();
     const studentName = document.querySelector("#student-select").tomselect.getItem(studentID)?.textContent || "";
     const subjectID = document.querySelector("#subject-select").tomselect.getValue(); // ✅ new
-    const subjectName = document.querySelector("#subject-select").tomselect.getItem(subjectID)?.textContent || ""; // optional
 
     // Create FormData and append full datetime + IDs
     const formData = new FormData(form);
@@ -573,7 +573,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (actionBtn.classList.contains("save-changes")) {
           location.reload();
         } else {
-          makeLessonSlot(localStart, localEnd, studentName, teacherName, data.lesson_id, studentID, teacherID);
+          makeLessonSlot(localStart, localEnd, studentName, teacherName, data.lesson_id, studentID, teacherID, subjectID);
           // ✅ you can also pass subjectName into makeLessonSlot if you want to display it
         }
         document.getElementById("slot-popup").style.display = "none";
