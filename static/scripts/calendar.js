@@ -151,7 +151,7 @@ document.querySelectorAll('.calendar-slot, .lesson-slot').forEach(slot => {
 
   return week[0]; // return Monday of the week
 }
-function makeLessonSlot(start, end, student, teacher,lesson_id,student_id,teacher_id, subject_id ) {
+function makeLessonSlot(start, end, student, teacher, lesson_id, student_id, teacher_id, subject_id) {
   const startDate = new Date(start);
   const endDate = new Date(end);
   const day = startDate.getDay() === 0 ? 6 : startDate.getDay() - 1;
@@ -160,40 +160,72 @@ function makeLessonSlot(start, end, student, teacher,lesson_id,student_id,teache
   const startMinutes = String(startDate.getMinutes()).padStart(2, "0");
   const timeKey = `${startHours}:${startMinutes}`;
 
-  const slot = document.querySelector(`[data-day="${day}"][data-start="${timeKey}"]`);
+  let slot = document.querySelector(`[data-day="${day}"][data-start="${timeKey}"]`);
 
+  const endHours = String(endDate.getHours()).padStart(2, "0");
+  const endMinutes = String(endDate.getMinutes()).padStart(2, "0");
+
+  // build lesson content
+  const timeLabel = document.createElement("div");
+  const studentNameLabel = document.createElement("div");
+  const teacherNameLabel = document.createElement("div");
+
+  studentNameLabel.className = "student-name-label";
+  studentNameLabel.textContent = student;
+
+  teacherNameLabel.className = "teacher-name-label";
+  teacherNameLabel.textContent = teacher;
+
+  timeLabel.className = "lesson-time-label";
+  timeLabel.textContent = `${startHours}:${startMinutes} - ${endHours}:${endMinutes}`;
+
+  // ✅ Case 1: fits into existing predefined slot
   if (slot) {
     slot.classList.remove("calendar-slot");
     slot.classList.add("lesson-slot");
-    
 
-    const endHours = String(endDate.getHours()).padStart(2, "0");
-    const endMinutes = String(endDate.getMinutes()).padStart(2, "0");
-
-    const timeLabel = document.createElement("div");
-    const studentNameLabel = document.createElement("div");
-    const teacherNameLabel = document.createElement("div");
-    studentNameLabel.className = "student-name-label";
-    studentNameLabel.textContent = `${student}`
-    teacherNameLabel.className = "teacher-name-label";
-    teacherNameLabel.textContent = `${teacher}`
-    timeLabel.className = "lesson-time-label";
-    timeLabel.textContent = `${startHours}:${startMinutes} - ${endHours}:${endMinutes}`;
-    
     slot.appendChild(timeLabel);
     slot.appendChild(studentNameLabel);
     slot.appendChild(teacherNameLabel);
+
     slot.dataset.student_name = student;
     slot.dataset.teacher_name = teacher;
     slot.dataset.student_id = student_id;
     slot.dataset.teacher_id = teacher_id;
-    slot.dataset.lesson_id=lesson_id;
-    slot.dataset.subject_id=subject_id;
+    slot.dataset.lesson_id = lesson_id;
+    slot.dataset.subject_id = subject_id;
 
   } else {
-    console.warn("Slot not found for", day, timeKey);
+    // ✅ Case 2: no matching predefined slot → create special slot
+    console.warn("No predefined slot for", day, timeKey, "→ creating special slot");
+
+    const col = document.querySelector(`.calendar-column[data-day="${day}"]`);
+    if (!col) {
+      console.error("No calendar column for day", day);
+      return;
+    }
+
+    const specialSlot = document.createElement("div");
+    specialSlot.classList.add("lesson-slot", "special-lesson-slot");
+
+    specialSlot.appendChild(timeLabel);
+    specialSlot.appendChild(studentNameLabel);
+    specialSlot.appendChild(teacherNameLabel);
+
+    // dataset for editing/updating
+    specialSlot.dataset.student_name = student;
+    specialSlot.dataset.teacher_name = teacher;
+    specialSlot.dataset.student_id = student_id;
+    specialSlot.dataset.teacher_id = teacher_id;
+    specialSlot.dataset.lesson_id = lesson_id;
+    specialSlot.dataset.subject_id = subject_id;
+    specialSlot.dataset.start = timeKey;
+
+    // add it to the right column
+    col.appendChild(specialSlot);
   }
 }
+
 
 //Popup functions
 function openSlotPopup(time, date, mode = "create", lessonData = null) {

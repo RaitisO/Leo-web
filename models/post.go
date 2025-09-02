@@ -88,9 +88,11 @@ func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, er
 
 	for rows.Next() {
 		var lesson LessonInfo
+		var subj sql.NullInt64
+
 		err := rows.Scan(
 			&lesson.LessonID,
-			&lesson.SubjectID,
+			&subj,
 			&lesson.StartTime,
 			&lesson.EndTime,
 			&lesson.StudentID,
@@ -101,7 +103,13 @@ func GetAllLessons(db *sql.DB, startStr string, endStr string) ([]LessonInfo, er
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
-		fmt.Println(lesson.SubjectID)
+
+		// if subject_id is NULL → skip this lesson
+		if !subj.Valid {
+			lesson.SubjectID = 0
+		}
+		lesson.SubjectID = int(subj.Int64)
+
 		lessons = append(lessons, lesson)
 	}
 

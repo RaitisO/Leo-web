@@ -146,6 +146,7 @@ func GetLesson(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		lessons, err = models.GetAllLessons(db, startStr, endStr)
 		if err != nil {
 			http.Error(w, "error getting lessons", http.StatusBadRequest)
+			fmt.Println(err)
 			return
 
 		}
