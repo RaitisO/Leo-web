@@ -180,8 +180,22 @@ function makeLessonSlot(start, end, student, teacher, lesson_id, student_id, tea
   timeLabel.textContent = `${startHours}:${startMinutes} - ${endHours}:${endMinutes}`;
 
   // ✅ Case 1: fits into existing predefined slot
-  if (slot) {
-    slot.classList.remove("calendar-slot");
+  if (slot && slot.className=="calendar-break-slot") {
+    let newminutes;
+    if (parseInt(startMinutes)+15==60){
+      newminutes = "00";
+    }else{
+      newminutes= String(parseInt(startMinutes)+15);
+    }
+      const newtimeKey = `${startHours}:${newminutes}`;
+   let newslot = document.querySelector(`[data-day="${day}"][data-start="${newtimeKey}"]`)
+
+   //slot.classList.remove("calendar-break-slot");
+   //slot.classList.add("lesson-slot");
+   newslot.style.height="20px";
+   newslot.style.margintop="auto"
+  } else if(slot){
+ slot.classList.remove("calendar-slot");
     slot.classList.add("lesson-slot");
 
     slot.appendChild(timeLabel);
@@ -194,7 +208,7 @@ function makeLessonSlot(start, end, student, teacher, lesson_id, student_id, tea
     slot.dataset.teacher_id = teacher_id;
     slot.dataset.lesson_id = lesson_id;
     slot.dataset.subject_id = subject_id;
-
+    console.log(slot.className);
   } else {
     // ✅ Case 2: no matching predefined slot → create special slot
     console.warn("No predefined slot for", day, timeKey, "→ creating special slot");
